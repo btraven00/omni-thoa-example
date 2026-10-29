@@ -3,3 +3,4 @@
 .envs-r.log
 .work/
 out/
+out-*/
