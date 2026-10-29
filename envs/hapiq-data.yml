@@ -7,8 +7,11 @@ dependencies:
   - scipy
   - pandas
   - pyyaml
+  - go
+  - git
   - pip
   - pip:
-      # ponytail: hapiq built from btraven00/hapiq feat/remotes (lock support);
-      # switch to a PyPI pin once a release carries `hapiq lock`.
-      - hapiq @ https://github.com/btraven00/omni-thoa-example/releases/download/hapiq-dev/hapiq-0.0.0.dev0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      # hapiq with lock support (btraven00/hapiq feat/remotes), built from
+      # source by its hatch hook, which needs `go`. Switch to a PyPI pin once
+      # a release carries `hapiq lock`.
+      - hapiq @ git+https://github.com/btraven00/hapiq@5e27227#subdirectory=python
