@@ -1,0 +1,16 @@
+# Just enough of split-stages-plan's envs/r.yml to run omni-scrna/1-data@4e4f1a5 once,
+# to produce the reference outputs the hapiq data module is compared against.
+channels:
+  - conda-forge
+  - bioconda
+  - https://prefix.dev/almost-conductor
+dependencies:
+  - r-base=4.5.3
+  - bioconductor-dropletutils
+  - bioconductor-geoquery
+  - bioconductor-anndatar
+  - bioconductor-experimenthub
+  - bioconductor-scrnaseq
+  - r-argparser
+  - r-stringr
+  - r-yaml

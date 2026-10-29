@@ -1,0 +1,14 @@
+name: hapiq-data
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - anndata
+  - scipy
+  - pandas
+  - pyyaml
+  - pip
+  - pip:
+      # ponytail: hapiq built from btraven00/hapiq feat/remotes (lock support);
+      # switch to a PyPI pin once a release carries `hapiq lock`.
+      - hapiq @ https://github.com/btraven00/omni-thoa-example/releases/download/hapiq-dev/hapiq-0.0.0.dev0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl

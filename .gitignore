@@ -1,0 +1,5 @@
+# local environments and scratch (reference runs, downloads)
+.envs/
+.envs-r.log
+.work/
+out/

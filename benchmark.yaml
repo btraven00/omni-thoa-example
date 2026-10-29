@@ -1,0 +1,71 @@
+id: omni_thoa_example
+name: omni-thoa-example
+description: >
+  A slice of omni-scrna/split-stages-plan (DATA + FILT) whose DATA stage
+  fetches through hapiq, from the thoa data lake when hapiq.lock pins the
+  dataset.
+benchmarker: "ben <ben.uzh@proton.me>"
+version: "0.1.0"
+# Pinned to 0.4.0 like split-stages-plan: scrapper names its outputs from
+# --name, which is the dataset id only at <= 0.4.0. Unpin when scrapper
+# writes the paths it is given.
+api_version: "0.4.0"
+
+provenance:
+  derived_from: split_stages_plan
+  canonical_url: https://raw.githubusercontent.com/btraven00/omni-thoa-example/refs/heads/main/benchmark.yaml
+
+software_backend: "conda"
+
+software_environments:
+  hapiq_data:
+    name: hapiq + anndata (python)
+    conda: envs/hapiq-data.yml
+  scrapper:
+    name: scrapper multi-module
+    conda: envs/scrapper.yml
+
+stages:
+  - id: DATA
+    outputs:
+      - id: rawdata_h5ad
+        path: "{dataset}.h5ad"
+      - id: rawdata_clusters_truth
+        path: "{dataset}.clusters_truth.tsv"
+      - id: rawdata_clusters_truth_num
+        path: "{dataset}.clusters_truth_num.txt"
+      - id: properties_info
+        path: "{dataset}_properties.yaml"
+    modules:
+      - id: be1
+        name: "be1 (GEO GSE243665) via hapiq"
+        software_environment: hapiq_data
+        repository:
+          url: .
+          commit: main
+          entrypoint: data_hapiq
+        parameters:
+          - dataset_name: be1
+            batch_var: Sample
+            labels_var: clusters.truth
+            sample_var: Sample
+
+  - id: FILT
+    inputs:
+      - rawdata_h5ad
+      - properties_info
+    outputs:
+      - id: filtered_cellids
+        path: "{dataset}_cellids.txt.gz"
+      - id: filtered_featureids
+        path: "{dataset}_featureids.txt.gz"
+      - id: size_factor_tsv
+        path: "{dataset}_size_factors.tsv"
+    modules:
+      - id: fi-scrapper
+        name: "scrapper-style filtering"
+        software_environment: scrapper
+        repository:
+          url: https://github.com/omni-scrna/scrapper
+          commit: 64e91bb
+          entrypoint: filter

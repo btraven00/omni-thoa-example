@@ -1,0 +1,4 @@
+# Entrypoints of the modules that live in this repo (modules/); the plan
+# points at them with `repository.url: .` and `entrypoint: <key>`.
+entrypoints:
+  data_hapiq: modules/data-hapiq/run.py
