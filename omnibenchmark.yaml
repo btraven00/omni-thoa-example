@@ -2,3 +2,4 @@
 # points at them with `repository.url: .` and `entrypoint: <key>`.
 entrypoints:
   data_hapiq: modules/data-hapiq/run.py
+  report: modules/report/run.py

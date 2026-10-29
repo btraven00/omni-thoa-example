@@ -23,6 +23,9 @@ software_environments:
   scrapper:
     name: scrapper multi-module
     conda: envs/scrapper.yml
+  report:
+    name: quarto + pandas
+    conda: envs/report.yml
 
 stages:
   - id: DATA
@@ -70,3 +73,24 @@ stages:
           url: /home/b/lab/omni-scrna/scrapper-named-outputs
           commit: named-outputs
           entrypoint: filter
+
+  # One report per dataset: gathers every DATA and FILT result of that dataset.
+  - id: REPORT
+    gather:
+      - from: rawdata_clusters_truth
+        group_by: DATA
+      - from: filtered_cellids
+        group_by: DATA
+      - from: filtered_featureids
+        group_by: DATA
+    outputs:
+      - id: report_html
+        path: "{DATA}_report.html"
+    modules:
+      - id: report_quarto
+        name: "Quarto report: cells and genes kept by FILT"
+        software_environment: report
+        repository:
+          url: .
+          commit: named-outputs
+          entrypoint: report
