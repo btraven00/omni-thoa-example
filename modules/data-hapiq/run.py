@@ -40,13 +40,21 @@ def parse_args():
     p.add_argument("--dataset_name", required=True)
     for k in ("batch_var", "sample_var", "labels_var"):
         p.add_argument(f"--{k}")
+    # api >= 0.8: one --output id=PATH per stage output (boilerplate's cli.py).
+    p.add_argument("--output", dest="outputs", action="append", default=[], metavar="ID=PATH")
     args = p.parse_args()
+    args.outputs = dict(o.split("=", 1) for o in args.outputs)
     # Same null handling as the R module.
     for k in ("batch_var", "sample_var", "labels_var"):
         v = getattr(args, k)
         if v is not None and v.lower() in ("none", "null", ""):
             setattr(args, k, None)
     return args
+
+
+def output_path(args, output_id, suffix):
+    """The --output path for output_id, else <output_dir>/<name><suffix> (api < 0.8)."""
+    return Path(args.outputs.get(output_id) or Path(args.output_dir) / f"{args.name}{suffix}")
 
 
 def make_unique(names):
@@ -139,14 +147,14 @@ def main():
         sys.exit("Dataset contains not integer counts")
 
     # anndataR keeps strings as strings; anndata would make them categoricals.
-    adata.write_h5ad(out / f"{args.name}.h5ad", convert_strings_to_categoricals=False)
+    adata.write_h5ad(output_path(args, "rawdata_h5ad", ".h5ad"), convert_strings_to_categoricals=False)
     truth = adata.obs[truth_col].astype(str)
     pd.DataFrame({"cell_id": adata.obs_names, "truths": truth.values, "truths_cl": ""}).to_csv(
-        out / f"{args.name}.clusters_truth.tsv", sep="\t", index=False
+        output_path(args, "rawdata_clusters_truth", ".clusters_truth.tsv"), sep="\t", index=False
     )
-    (out / f"{args.name}.clusters_truth_num.txt").write_text(f"{truth.nunique()}\n")
+    output_path(args, "rawdata_clusters_truth_num", ".clusters_truth_num.txt").write_text(f"{truth.nunique()}\n")
     props = {k: getattr(args, k) for k in ("batch_var", "sample_var", "labels_var")}
-    (out / f"{args.name}_properties.yaml").write_text(yaml.safe_dump(props, sort_keys=False))
+    output_path(args, "properties_info", "_properties.yaml").write_text(yaml.safe_dump(props, sort_keys=False))
 
 
 if __name__ == "__main__":

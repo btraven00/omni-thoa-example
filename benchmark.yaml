@@ -6,10 +6,9 @@ description: >
   dataset.
 benchmarker: "ben <ben.uzh@proton.me>"
 version: "0.1.0"
-# Pinned to 0.4.0 like split-stages-plan: scrapper names its outputs from
-# --name, which is the dataset id only at <= 0.4.0. Unpin when scrapper
-# writes the paths it is given.
-api_version: "0.4.0"
+# Named outputs: every module gets --output id=PATH (omnibenchmark
+# feat/named-outputs, design 009); ids are [A-Za-z0-9_].
+api_version: "0.8.0"
 
 provenance:
   derived_from: split_stages_plan
@@ -29,13 +28,13 @@ stages:
   - id: DATA
     outputs:
       - id: rawdata_h5ad
-        path: "{dataset}.h5ad"
+        path: "{module.id}.h5ad"
       - id: rawdata_clusters_truth
-        path: "{dataset}.clusters_truth.tsv"
+        path: "{module.id}.clusters_truth.tsv"
       - id: rawdata_clusters_truth_num
-        path: "{dataset}.clusters_truth_num.txt"
+        path: "{module.id}.clusters_truth_num.txt"
       - id: properties_info
-        path: "{dataset}_properties.yaml"
+        path: "{module.id}_properties.yaml"
     modules:
       - id: be1
         name: "be1 (GEO GSE243665) via hapiq"
@@ -56,16 +55,18 @@ stages:
       - properties_info
     outputs:
       - id: filtered_cellids
-        path: "{dataset}_cellids.txt.gz"
+        path: "{module.id}_cellids.txt.gz"
       - id: filtered_featureids
-        path: "{dataset}_featureids.txt.gz"
+        path: "{module.id}_featureids.txt.gz"
       - id: size_factor_tsv
-        path: "{dataset}_size_factors.tsv"
+        path: "{module.id}_size_factors.tsv"
     modules:
-      - id: fi-scrapper
+      - id: fi_scrapper
         name: "scrapper-style filtering"
         software_environment: scrapper
         repository:
-          url: https://github.com/omni-scrna/scrapper
-          commit: 64e91bb
+          # ponytail: local named-outputs worktree until the branch is pushed;
+          # then https://github.com/omni-scrna/scrapper at its commit.
+          url: /home/b/lab/omni-scrna/scrapper-named-outputs
+          commit: named-outputs
           entrypoint: filter
