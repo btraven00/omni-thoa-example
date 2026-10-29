@@ -3,15 +3,15 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
-  - anndata
-  - scipy
-  - pandas
-  - pyyaml
-  - go
-  - git
   - pip
+  - go
   - pip:
-      # hapiq with lock support (btraven00/hapiq feat/remotes d9fe923), built from
-      # source by its hatch hook, which needs `go`. Switch to a PyPI pin once
-      # a release carries `hapiq lock`.
-      - hapiq @ git+https://github.com/btraven00/hapiq@d9fe923#subdirectory=python
+      # thoa's builder solves with bioconda ahead of conda-forge under strict
+      # priority, which breaks h5py/hdf5 (c-ares); pip wheels avoid conda for them.
+      - anndata
+      - scipy
+      - pandas
+      - pyyaml
+      # hapiq with lock support (btraven00/hapiq feat/remotes d9fe923), built
+      # from source by its hatch hook with `go`; a source archive needs no git.
+      - hapiq @ https://github.com/btraven00/hapiq/archive/d9fe923.tar.gz#subdirectory=python
