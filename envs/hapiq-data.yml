@@ -11,7 +11,7 @@ dependencies:
   - git
   - pip
   - pip:
-      # hapiq with lock support (btraven00/hapiq feat/remotes), built from
+      # hapiq with lock support (btraven00/hapiq feat/remotes d9fe923), built from
       # source by its hatch hook, which needs `go`. Switch to a PyPI pin once
       # a release carries `hapiq lock`.
-      - hapiq @ git+https://github.com/btraven00/hapiq@5e27227#subdirectory=python
+      - hapiq @ git+https://github.com/btraven00/hapiq@d9fe923#subdirectory=python

@@ -1,0 +1,117 @@
+# hapiq.lock: written by `hapiq lock add`; commit it with the plan.
+- accession: geo:GSE243665
+  filters:
+    include_ext:
+      - .mtx.gz
+      - .tsv.gz
+  digest: 9fe84b1f558992f17250ba0e0e4cc08a6098a28be796399631b110ee650fc923
+  files:
+    - path: metadata/GSE243665_family.soft.gz
+      size: 3747
+      sha256: ddd3bc13721c9c5747c233b5d40149c9f1c9afc66e734afef88ac7484bd29f64
+    - path: metadata/GSE243665_series_matrix.txt.gz
+      size: 3545
+      sha256: 15cb14ca733c89aa729bfdfab38d050960e1f4a410ad02acc851994f66b72466
+    - path: supplementary/GSE243665_A549_barcodes.tsv.gz
+      size: 31445
+      sha256: c961c72774678d0a2fbc974ae7b78d2e15918274ee55a679462208c0d7b88d45
+    - path: supplementary/GSE243665_A549_features.tsv.gz
+      size: 334752
+      sha256: 40f9c14208caad89e375f3e0807facb661e731275206d4e3b94092c9256b9718
+    - path: supplementary/GSE243665_A549_matrix.mtx.gz
+      size: 62605478
+      sha256: 7e02308aa2df00a3a6a77d265b4ca24293a03c449dfa8249c17a5b43dbae14ba
+    - path: supplementary/GSE243665_CCL-185-IG_barcodes.tsv.gz
+      size: 30629
+      sha256: 34eccbdba7ed82dfa275045a5a37df02f596180730466e50bf61d124a9e1e8cc
+    - path: supplementary/GSE243665_CCL-185-IG_features.tsv.gz
+      size: 334752
+      sha256: fdfed31b97ad7a56a3b86d14be0aa8b96f76e995c9884535e89ceb26663ff512
+    - path: supplementary/GSE243665_CCL-185-IG_matrix.mtx.gz
+      size: 56609508
+      sha256: 8d22c3bffdb2c80a94cebe05e8218f44a3560f8c52e83d12d582ae43b6baffb2
+    - path: supplementary/GSE243665_CRL5868_barcodes.tsv.gz
+      size: 13807
+      sha256: a9710aa5c2b20a6e831d7d966eb48940865c09b6a69602c5b6e3f5b4bdb30fa5
+    - path: supplementary/GSE243665_CRL5868_features.tsv.gz
+      size: 334752
+      sha256: 441c826677b4c5641a7d5e4a598dd7e3ecb57a9f53e1f6f3477e607e7c476542
+    - path: supplementary/GSE243665_CRL5868_matrix.mtx.gz
+      size: 17580004
+      sha256: 2627ece35b2016407cf764d4c1583cdf48b8574302e924501b3df9071632e804
+    - path: supplementary/GSE243665_DV90_barcodes.tsv.gz
+      size: 14782
+      sha256: b389325fb9f489a7ad0b4b19da81805f938408b2060f7661408584990b3c33f0
+    - path: supplementary/GSE243665_DV90_features.tsv.gz
+      size: 295456
+      sha256: 3f0808be459543b9a950c64bdf934f00feed8d04f321b259928402fcd83eed5d
+    - path: supplementary/GSE243665_DV90_matrix.mtx.gz
+      size: 25928502
+      sha256: 4b8a28cec7efeed908ce8391c963506b9addb10053ef2855d727dc76707fef44
+    - path: supplementary/GSE243665_HCC78_barcodes.tsv.gz
+      size: 13759
+      sha256: 88e20824e24f90d54444a1e0def9e5c00c5a92abd788ad816abbfac4768c9f93
+    - path: supplementary/GSE243665_HCC78_features.tsv.gz
+      size: 334752
+      sha256: 271220dc1919ad6e3e89fa004b0c2f5b31d34a52f2edce178fc3913abf40237a
+    - path: supplementary/GSE243665_HCC78_matrix.mtx.gz
+      size: 28386858
+      sha256: 98f0f496aeb98d1ceabffeefbe5fd6ee275489becd61861c2cdeaad5d8cdb059
+    - path: supplementary/GSE243665_HTB178_barcodes.tsv.gz
+      size: 15850
+      sha256: 947de4c8105229a818792a5caab9f9841f595f90002e79bbf3862705ceb18811
+    - path: supplementary/GSE243665_HTB178_features.tsv.gz
+      size: 334752
+      sha256: 17ae66246bae1703844f070d72a51c1217457264e40a7609dc22dfc38ec10caa
+    - path: supplementary/GSE243665_HTB178_matrix.mtx.gz
+      size: 24877874
+      sha256: 3a153ac38edecb1adfda23e35a8b5ff417ddd0c69d05f7b8031541543e708ea1
+    - path: supplementary/GSE243665_PBMCs_barcodes.tsv.gz
+      size: 2821
+      sha256: 22845fe766323585e33791c0cdf3ac16193cc7db42a5a986b69bcd5cb35b95d1
+    - path: supplementary/GSE243665_PBMCs_features.tsv.gz
+      size: 334752
+      sha256: 8c17859f62c9d2c1af07462ba909f03180299002d8140b9ec40da3fb5b5d317c
+    - path: supplementary/GSE243665_PBMCs_matrix.mtx.gz
+      size: 1032212
+      sha256: f70f0beb2f1573606b2431f31ee468db923c8801ffc766c95038c5834ea6c8fd
+    - path: supplementary/GSE243665_PC9_barcodes.tsv.gz
+      size: 21213
+      sha256: 0b333d6be45880e53f3a0ff76a74a37ca36829dbcac8b2d74aa5ced18649e69a
+    - path: supplementary/GSE243665_PC9_features.tsv.gz
+      size: 334752
+      sha256: 715bf2c2f3c9c7c9f6b9a5602fcea334346b3387355c0077bf298e8bbc3d3c39
+    - path: supplementary/GSE243665_PC9_matrix.mtx.gz
+      size: 47231511
+      sha256: acb5178b2b1e2ebb13770eaec070d9d387bec8fc778f9b3cede521f90a933885
+  remotes:
+    - type: thoa
+      endpoint: https://api.thoa.io
+      dataset: cae64ede-c2fd-4405-b0e3-a713cebce3d7
+      files:
+        metadata/GSE243665_family.soft.gz: 268420e7-d6de-4f5c-a7e1-6eb4379d0eb7
+        metadata/GSE243665_series_matrix.txt.gz: 6e364cd8-f0eb-446f-b44b-16f2c4892cd0
+        supplementary/GSE243665_A549_barcodes.tsv.gz: 617522c9-33af-45a3-8055-3463f113dfb6
+        supplementary/GSE243665_A549_features.tsv.gz: d8d6072a-e99a-4875-93b0-7c92b76a8695
+        supplementary/GSE243665_A549_matrix.mtx.gz: 8a6c4784-952e-40d3-bcb8-ec605df75a55
+        supplementary/GSE243665_CCL-185-IG_barcodes.tsv.gz: b38f026f-5231-42f7-a1fc-c607c30870f7
+        supplementary/GSE243665_CCL-185-IG_features.tsv.gz: 66dc3467-c3b9-4285-8ca3-d436b2310c6f
+        supplementary/GSE243665_CCL-185-IG_matrix.mtx.gz: 7a1228d2-5a99-4ede-9131-91238b55dfb8
+        supplementary/GSE243665_CRL5868_barcodes.tsv.gz: c50194f2-0b52-4f2c-800c-416b501bd752
+        supplementary/GSE243665_CRL5868_features.tsv.gz: 6161cc14-2264-49b2-9d4e-3f77547a4be6
+        supplementary/GSE243665_CRL5868_matrix.mtx.gz: d5408112-288c-4c68-aa16-e6f0c09635c1
+        supplementary/GSE243665_DV90_barcodes.tsv.gz: 55f4dfb9-8c2a-411e-9801-b06729470393
+        supplementary/GSE243665_DV90_features.tsv.gz: 1ced1f8d-5fb2-4508-97be-43f25708fbb7
+        supplementary/GSE243665_DV90_matrix.mtx.gz: 7297a080-2f7c-4074-ae01-944d62a7a066
+        supplementary/GSE243665_HCC78_barcodes.tsv.gz: 4c715ecf-f0b0-486c-9028-ae394e7d4fe8
+        supplementary/GSE243665_HCC78_features.tsv.gz: 3155abde-570e-4bbe-bd7a-3134f6c643f3
+        supplementary/GSE243665_HCC78_matrix.mtx.gz: 96bf3f81-1fa7-4302-bde9-debe94977c73
+        supplementary/GSE243665_HTB178_barcodes.tsv.gz: 82480f04-dbbb-499f-a78f-94294d99c792
+        supplementary/GSE243665_HTB178_features.tsv.gz: 36a9827f-378d-4c4a-bd4e-fb9a0306587d
+        supplementary/GSE243665_HTB178_matrix.mtx.gz: 39e78764-adcd-4300-be59-96a3c75b3bc6
+        supplementary/GSE243665_PBMCs_barcodes.tsv.gz: 04a688ed-84b1-4b29-a1fa-167cf7eedb02
+        supplementary/GSE243665_PBMCs_features.tsv.gz: 8837d02b-2f22-4456-8a75-8e97383bcc84
+        supplementary/GSE243665_PBMCs_matrix.mtx.gz: 168bb1f4-b670-4b86-a533-93e79b2d84bc
+        supplementary/GSE243665_PC9_barcodes.tsv.gz: ed0407c6-4649-4a54-8809-8b499d770990
+        supplementary/GSE243665_PC9_features.tsv.gz: bc095e13-1ea7-4098-93eb-6c2d83d8b505
+        supplementary/GSE243665_PC9_matrix.mtx.gz: 5116a523-e476-4fe6-8e99-17e45f9d1f60
