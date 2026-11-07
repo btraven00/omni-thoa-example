@@ -1,0 +1,5 @@
+#!/bin/sh
+# ob's post-run hook on a thoa VM (thoa/slice.sh): record the run's costs with
+# obcost into out/.hooks/, which comes back with the job's outputs;
+# thoa/slices.py then imports it into the local obcost store.
+OBCOST_DIR="$OB_HOOKS_OUT" exec "$(dirname "$0")/../bin/obcost" post-run "$@"

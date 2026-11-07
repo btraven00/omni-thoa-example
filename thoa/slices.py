@@ -14,6 +14,7 @@ ponytail: one job per stage and stages in plan order, which fits a linear
 plan; a stage with modules on different envs needs one job per module (-m).
 """
 
+import json
 import os
 import re
 import subprocess
@@ -29,7 +30,9 @@ WORK = Path(".work/slices")
 # Envs thoa's builder can't build (bioconda-first strict priority, URL
 # channels dropped; thoa-go BUGS.txt 6, 9): build them in the job instead.
 IN_JOB = {"scrapper"}
-LOG_GLOBS = ["out/.logs/*", "out/job.log", "out/Snakefile", "out/.metadata/*", "*/performance.txt"]
+LOG_GLOBS = ["out/.logs/*", "out/job.log", "out/Snakefile", "out/.metadata/*", "*/performance.txt", "out/.hooks/*"]
+OBCOST_SRC = Path(os.environ.get("OBCOST_SRC", Path.home() / "phd/obcost"))
+OBCOST = Path("thoa/bin/obcost")  # shipped to the VM with thoa/, run by thoa/hooks/post-run
 HEADER = """\
 # slices.lock: slice key -> the thoa datasets that materialize it.
 # Written by thoa/slices.py. Key: {plan.id}@{plan.version}/until-{STAGE}/{hash}
@@ -92,12 +95,33 @@ def run_slice(stage, env, staged):
     output = p.stdout.strip()
     results, files = view(output, [a for g in LOG_GLOBS for a in ("-e", g)])
     logs, _ = view(output, [a for g in LOG_GLOBS for a in ("-i", g)])
-    return results, files, {"job": m[1], "output": output, "logs": logs, "env": m[2],
-                            "backend": "conda (module env built in-job)" if in_job else "host",
-                            "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    run = {"job": m[1], "output": output, "logs": logs, "env": m[2],
+           "backend": "conda (module env built in-job)" if in_job else "host",
+           "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    try:  # costs are a side record: never lose the slice over them
+        run.update(record_cost(stage, m[1], output))
+    except subprocess.CalledProcessError as e:
+        print(f"{stage}: obcost import failed: {(e.stderr or '').strip()}")
+    return results, files, run
+
+
+def record_cost(stage, job, output):
+    """Import the VM's obcost rows (out/.hooks/) with thoa's cost for the job."""
+    rec = json.loads(sh(THOA, "job", job))
+    cost = {k: rec[k] for k in ("billed_cost_usd", "credits_debited") if rec.get(k) is not None}
+    dest = WORK / f"{stage}-hooks"
+    sh(THOA, "download", "-q", "-i", "out/.hooks/*", output, str(dest))
+    attrs = ["-a", "remote=thoa", "-a", f"job={job}"]
+    for k, v in cost.items():
+        attrs += ["-a", f"{k}={v}"]
+    sh(str(OBCOST), "import", *attrs, str(dest / "out" / ".hooks"))
+    print(f"{stage}: obcost import, cost {cost or 'not yet billed'}")
+    return cost
 
 
 def main(dry=False):
+    if not dry:  # a static linux binary; jobs run it as ob's post-run hook
+        sh("go", "build", "-C", str(OBCOST_SRC), "-o", str(OBCOST.resolve()), ".")
     plan = yaml.safe_load(Path("plan.yaml").read_text())
     lock = yaml.safe_load(LOCK.read_text()) if LOCK.exists() else {}
     lock = lock or {}
