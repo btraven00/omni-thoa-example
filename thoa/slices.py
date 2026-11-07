@@ -39,8 +39,8 @@ HEADER = """\
 """
 
 
-def sh(*cmd, **kw):
-    return subprocess.run(cmd, check=True, text=True, capture_output=True, **kw).stdout
+def sh(*cmd, stderr=subprocess.PIPE):
+    return subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE, stderr=stderr).stdout
 
 
 def bundle():
