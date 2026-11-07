@@ -68,10 +68,8 @@ stages:
         name: "scrapper-style filtering"
         software_environment: scrapper
         repository:
-          # ponytail: local named-outputs worktree until the branch is pushed;
-          # then https://github.com/omni-scrna/scrapper at its commit.
-          url: /home/b/lab/omni-scrna/scrapper-named-outputs
-          commit: named-outputs
+          url: https://github.com/omni-scrna/scrapper
+          commit: 2a83f79  # api-0.8.0: --output id=PATH
           entrypoint: filter
 
   # One report per dataset: gathers every DATA and FILT result of that dataset.
