@@ -51,3 +51,56 @@ omni_thoa_example@0.1.0/until-REPORT/735282fabc82205c:
     env: 4d0b10c5-5bd7-464f-9dff-1a0747d816e4
     backend: host
     at: '2026-11-07T14:37:10Z'
+omni_thoa_example@0.1.0/until-DATA/4ad444940724faa9+dirty:
+  upstream: []
+  results: 3b95b982-d98c-4977-a8f2-25eb541d4081
+  files:
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+  runs:
+  - job: d740d765-84f9-49f1-bde0-3695bdb71c38
+    output: 3840ac70-c1c2-42b4-aef3-710481e6e2ac
+    logs: 5c029a6f-faac-4508-a6dd-32d99e189d7d
+    env: e77cc497-048a-486a-a59b-d3f753cd4631
+    backend: host
+    at: '2026-11-07T16:17:08Z'
+    billed_cost_usd: 0.032107879039
+    credits_debited: 4
+omni_thoa_example@0.1.0/until-FILT/68b70643e6aa2de7+dirty:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/4ad444940724faa9+dirty
+  results: cd0efad7-7ecb-4e79-b87f-ec587ccfbc3e
+  files:
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+  runs:
+  - job: 5627cbb4-e251-4f59-ad75-265323e0fda9
+    output: fe9e2dd0-1083-433b-8a18-07cecbf15728
+    logs: 5daaecdc-1305-48ea-ad25-654060548145
+    env: c78d6e29-3533-4b99-b550-8eb764988429
+    backend: conda (module env built in-job)
+    at: '2026-11-07T16:25:23Z'
+    billed_cost_usd: 0.043865181998
+    credits_debited: 5
+omni_thoa_example@0.1.0/until-REPORT/7ce75ebfaee4f68c+dirty:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/4ad444940724faa9+dirty
+  - omni_thoa_example@0.1.0/until-FILT/68b70643e6aa2de7+dirty
+  results: 99544c4e-b7aa-46c7-be73-e7fa0ac50e05
+  files:
+    out/REPORT.report_quarto.be1.default/be1_report.html: 0b36b6bc-c356-4aab-ae9e-daf3aaecc26b
+    out/REPORT.report_quarto.be1.default/be1_report.qmd: ca2af7a3-28fb-4fed-b016-811faad60530
+    out/REPORT.report_quarto.be1.default/lineage.json: 3ac066c2-8458-4a3c-9bd6-8a6481ebf18e
+  runs:
+  - job: eede5824-e6d8-48da-a926-c1b80d22b1a7
+    output: 4fba847f-297b-4a77-bbf5-8be459b5e15f
+    logs: 83d6d4a8-8222-40fd-b3cd-731c8c106812
+    env: 4d0b10c5-5bd7-464f-9dff-1a0747d816e4
+    backend: host
+    at: '2026-11-07T16:31:56Z'
+    billed_cost_usd: 0.027611855744
+    credits_debited: 3
