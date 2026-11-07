@@ -75,10 +75,17 @@ def run_slice(stage, env, staged):
     for f in bundle():
         args += ["-in", f]
     print(f"{stage}: running a thoa job ({'in-job env' if in_job else 'env ' + env}, {len(staged)} staged files)")
-    with open(WORK / f"{stage}.err", "w") as err:
-        p = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=err)
-    log = (WORK / f"{stage}.err").read_text()
-    m = re.search(r"job (\S+) submitted \(env (\S+)\)", log)
+    for attempt in range(3):
+        with open(WORK / f"{stage}.err", "w") as err:
+            p = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=err)
+        log = (WORK / f"{stage}.err").read_text()
+        m = re.search(r"job (\S+) submitted \(env (\S+)\)", log)
+        # The upload before submission hits transient 500s and timeouts; with
+        # no job created yet, a retry is safe (files are deduped by md5).
+        if p.returncode == 0 or m:
+            break
+        print(f"{stage}: failed before submitting ({log.strip().splitlines()[-1]}), retrying")
+        time.sleep(30)
     if p.returncode or not m:
         sys.exit(f"{stage}: job failed, see {WORK / (stage + '.err')}")
     output = p.stdout.strip()
