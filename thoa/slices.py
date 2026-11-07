@@ -4,8 +4,9 @@
 
 For each stage in plan order: compute its slice key (thoa/slicekey.sh). If
 slices.lock has the key and its results dataset still exists, reuse it.
-Otherwise run the slice as a thoa job: upload the repo (with .git, so lineage
-records the real commit), stage every upstream slice's result files by id,
+Otherwise run the slice as a thoa job: upload the repo's files (modules are
+cloned by ob from their pinned commits, so lineage records real commits),
+stage every upstream slice's result files by id,
 run thoa/slice.sh --until STAGE, split the job's output into a results
 dataset and a logs dataset, and add the key to slices.lock.
 
@@ -44,11 +45,11 @@ def sh(*cmd, stderr=subprocess.PIPE):
 
 
 def bundle():
-    """The repo's files and its .git: what a slice job runs from."""
+    """The repo's files a slice job runs from (modules come from their pinned commits)."""
     files = sh("git", "ls-files", "--cached", "--others", "--exclude-standard").split("\n")
     skip = ("data/", "out", "slices.lock")  # slices.lock: the cache, not an input
     keep = sorted({f.split("/")[0] for f in files if f and not f.startswith(skip)})
-    return keep + [".git"]
+    return keep
 
 
 def exists(dataset):

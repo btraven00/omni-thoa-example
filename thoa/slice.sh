@@ -37,19 +37,8 @@ else
   sed -i 's/^software_backend: .*/software_backend: "host"/' benchmark.yaml
 fi
 
-# The plan's `url: .` modules need a git repo. The driver uploads the real
-# .git, so ob records the actual commit in lineage.json; without it, make a
-# throwaway one (its hash means nothing). out/ is in .gitignore either way.
-[ -d .git ] && echo "== repo: $(git -C . rev-parse HEAD 2>/dev/null || python -c 'from dulwich.repo import Repo; print(Repo(".").head().decode())')" || python - <<'PY'
-from dulwich import porcelain as p
-r = p.init(".")
-r.refs.set_symbolic_ref(b"HEAD", b"refs/heads/main")
-p.add(r)
-p.commit(r, b"thoa slice bundle", author=b"slice <slice@thoa>", committer=b"slice <slice@thoa>")
-PY
-
 rc=0
-ob run benchmark.yaml --dirty --cores "$(nproc)" --out-dir out "$@" || rc=$?
+ob run benchmark.yaml --cores "$(nproc)" --out-dir out "$@" || rc=$?
 # Built envs and module clones are GBs and not results; keep them out of the dataset.
 rm -rf out/.snakemake out/.modules out/.envs
 xargs -r -d '\n' rm -f < "$staged"

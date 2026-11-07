@@ -43,8 +43,8 @@ stages:
         name: "be1 (GEO GSE243665) via hapiq"
         software_environment: hapiq_data
         repository:
-          url: .
-          commit: main
+          url: https://github.com/btraven00/omni-thoa-example
+          commit: 466661e # named-outputs; modules/ of this repo
           entrypoint: data_hapiq
         parameters:
           - dataset_name: be1
@@ -89,6 +89,6 @@ stages:
         name: "Quarto report: cells and genes kept by FILT"
         software_environment: report
         repository:
-          url: .
-          commit: named-outputs
+          url: https://github.com/btraven00/omni-thoa-example
+          commit: 466661e # named-outputs; modules/ of this repo
           entrypoint: report
