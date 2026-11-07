@@ -8,8 +8,6 @@
 # slice key pins only the data files' ids (slices.lock), so logs never feed
 # a downstream job.
 set -euo pipefail
-# omnibenchmark main + run hooks (design 016, btraven00 fork feat/hooks)
-OB=06803e1884e34832a15f7a86a3adf103339221f5
 
 mkdir -p out
 # Files already in out/ were staged from upstream slices; drop them at the end
@@ -20,9 +18,10 @@ echo "== staged inputs: $(wc -l < "$staged") files"
 echo "== $(date -Is) slice: $* (cwd $PWD)"
 echo "== python: $(command -v python) ($(python -V 2>&1))"
 
-# ob versions itself from git; a source archive has none. Its deps are in the env.
-SETUPTOOLS_SCM_PRETEND_VERSION=0.7.0.post0 pip install -q --no-deps \
-  "omnibenchmark @ https://github.com/btraven00/omnibenchmark/archive/$OB.tar.gz"
+# ob comes as a wheel built by thoa/slices.py (OB_SRC: main + #407 + hooks);
+# its deps are in the env.
+pip install -q --no-deps thoa/bin/omnibenchmark-*.whl
+echo "== ob: $(ob --version 2>&1)"
 
 # obcost records the run's costs as ob's post-run hook (thoa/hooks/post-run);
 # uploads lose the executable bit.

@@ -33,6 +33,9 @@ IN_JOB = {"scrapper"}
 LOG_GLOBS = ["out/.logs/*", "out/job.log", "out/Snakefile", "out/.metadata/*", "*/performance.txt", "out/.hooks/*"]
 OBCOST_SRC = Path(os.environ.get("OBCOST_SRC", Path.home() / "phd/obcost"))
 OBCOST = Path("thoa/bin/obcost")  # shipped to the VM with thoa/, run by thoa/hooks/post-run
+# ob for the VM, as a wheel: a local branch needs no push (main + #407 + hooks)
+OB_SRC = Path(os.environ.get("OB_SRC", Path.home() / "lab/omnibenchmark-integ"))
+PY = os.environ.get("OB_PY", str(Path.home() / "lab/omnibenchmark/.pixi/envs/default/bin/python"))
 HEADER = """\
 # slices.lock: slice key -> the thoa datasets that materialize it.
 # Written by thoa/slices.py. Key: {plan.id}@{plan.version}/until-{STAGE}/{hash}
@@ -120,8 +123,13 @@ def record_cost(stage, job, output):
 
 
 def main(dry=False):
-    if not dry:  # a static linux binary; jobs run it as ob's post-run hook
+    if not dry:  # what jobs ship in thoa/bin: obcost (static) and ob's wheel
         sh("go", "build", "-C", str(OBCOST_SRC), "-o", str(OBCOST.resolve()), ".")
+        for w in OBCOST.parent.glob("omnibenchmark-*.whl"):
+            w.unlink()
+        rev = sh("git", "-C", str(OB_SRC), "rev-parse", "--short=8", "HEAD").strip()
+        subprocess.run([PY, "-m", "pip", "wheel", "-q", "--no-deps", "-w", str(OBCOST.parent), str(OB_SRC)],
+                       check=True, env={**os.environ, "SETUPTOOLS_SCM_PRETEND_VERSION": f"0.8.0.dev0+integ.{rev}"})
     plan = yaml.safe_load(Path("plan.yaml").read_text())
     lock = yaml.safe_load(LOCK.read_text()) if LOCK.exists() else {}
     lock = lock or {}
