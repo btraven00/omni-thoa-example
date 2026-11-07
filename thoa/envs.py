@@ -1,7 +1,7 @@
 """Write envs/thoa/<env>.yml: each software environment of the plan plus ob's
 dependencies, so a thoa job can run ob with software_backend host inside it.
 
-    python thoa/envs.py [benchmark.yaml]
+    python thoa/envs.py [plan.yaml]
 
 ob itself is installed at job start (thoa/slice.sh, pip --no-deps), because its
 version comes from git and a source archive has none.
@@ -54,7 +54,7 @@ def thoa_env(env: dict) -> dict:
     return {**env, "dependencies": deps}
 
 
-def main(plan_path: str = "benchmark.yaml") -> None:
+def main(plan_path: str = "plan.yaml") -> None:
     plan = yaml.safe_load(Path(plan_path).read_text())
     out = Path("envs/thoa")
     out.mkdir(parents=True, exist_ok=True)

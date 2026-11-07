@@ -34,11 +34,11 @@ if [ "${SLICE_BACKEND:-host}" = conda ]; then
   export CONDA_CHANNEL_PRIORITY=flexible
   echo "== conda backend: $(command -v conda) $(conda --version 2>&1)"
 else
-  sed -i 's/^software_backend: .*/software_backend: "host"/' benchmark.yaml
+  sed -i 's/^software_backend: .*/software_backend: "host"/' plan.yaml
 fi
 
 rc=0
-ob run benchmark.yaml --cores "$(nproc)" --out-dir out "$@" || rc=$?
+ob run plan.yaml --cores "$(nproc)" --out-dir out "$@" || rc=$?
 # Built envs and module clones are GBs and not results; keep them out of the dataset.
 rm -rf out/.snakemake out/.modules out/.envs
 xargs -r -d '\n' rm -f < "$staged"

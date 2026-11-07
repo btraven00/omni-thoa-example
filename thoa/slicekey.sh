@@ -15,10 +15,10 @@ OB=${OB:-$HOME/lab/omnibenchmark/.venv/bin/ob}
 d=$(mktemp -d)
 trap 'rm -rf "$d"' EXIT
 
-"$OB" run benchmark.yaml --dry --until "$STAGE" --out-dir "$d/out" >/dev/null
-id=$(sed -n 's/^id: *//p' benchmark.yaml | tr -d '"')
-ver=$(sed -n 's/^version: *//p' benchmark.yaml | tr -d '"')
-INPUTS=(envs benchmark.yaml thoa/slice.sh)
+"$OB" run plan.yaml --dry --until "$STAGE" --out-dir "$d/out" >/dev/null
+id=$(sed -n 's/^id: *//p' plan.yaml | tr -d '"')
+ver=$(sed -n 's/^version: *//p' plan.yaml | tr -d '"')
+INPUTS=(envs plan.yaml thoa/slice.sh)
 h=$({
   grep -v '^# Generated:' "$d/out/Snakefile"
   git ls-tree -r HEAD -- "${INPUTS[@]}"

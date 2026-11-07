@@ -98,7 +98,7 @@ def run_slice(stage, env, staged):
 
 
 def main(dry=False):
-    plan = yaml.safe_load(Path("benchmark.yaml").read_text())
+    plan = yaml.safe_load(Path("plan.yaml").read_text())
     lock = yaml.safe_load(LOCK.read_text()) if LOCK.exists() else {}
     lock = lock or {}
     done = []  # keys of the slices so far, in plan order
