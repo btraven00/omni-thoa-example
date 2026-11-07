@@ -12,7 +12,7 @@ api_version: "0.8.0"
 
 provenance:
   derived_from: split_stages_plan
-  canonical_url: https://raw.githubusercontent.com/btraven00/omni-thoa-example/refs/heads/named-outputs/plan.yaml
+  canonical_url: https://raw.githubusercontent.com/btraven00/omni-thoa-example/refs/heads/main/plan.yaml
 
 software_backend: "conda"
 
@@ -44,7 +44,7 @@ stages:
         software_environment: hapiq_data
         repository:
           url: https://github.com/btraven00/omni-thoa-example
-          commit: 466661e # named-outputs; modules/ of this repo
+          commit: 466661e # modules/ of this repo
           entrypoint: data_hapiq
         parameters:
           - dataset_name: be1
@@ -90,5 +90,5 @@ stages:
         software_environment: report
         repository:
           url: https://github.com/btraven00/omni-thoa-example
-          commit: 466661e # named-outputs; modules/ of this repo
+          commit: 466661e # modules/ of this repo
           entrypoint: report
