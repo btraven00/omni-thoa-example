@@ -1,0 +1,53 @@
+# slices.lock: slice key -> the thoa datasets that materialize it.
+# Written by thoa/slices.py. Key: {plan.id}@{plan.version}/until-{STAGE}/{hash}
+# (thoa/slicekey.sh). results: dataset over the slice's own output files (no
+#   logs); thoa keeps no paths for it, so `files` (path -> file id) is the
+#   record downstream jobs stage from. Ids are content addresses (md5 dedup).
+# upstream: slices a job for this one stages. runs: one per job that made it.
+omni_thoa_example@0.1.0/until-DATA/8c11e01c9c3fd583:
+  upstream: []
+  results: 799c6005-580b-419d-ae3d-1869a372c188
+  files:
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+  runs:
+  - job: 602cf064-08ff-4e3a-b3aa-a4e60ff35135
+    output: ceffafbb-5b6f-4765-bdda-224eea24f879
+    logs: cf183e8d-730f-4285-b6a3-0c5403de8ce8
+    env: e77cc497-048a-486a-a59b-d3f753cd4631
+    backend: host
+    at: '2026-11-07T14:23:27Z'
+omni_thoa_example@0.1.0/until-FILT/a6251f9df5d15189:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/8c11e01c9c3fd583
+  results: a480c3f2-4ed9-4f0e-9a71-469409d22669
+  files:
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+  runs:
+  - job: cee2619a-bd01-4034-878d-ecf1757ecb0a
+    output: ea11cf69-0eba-4831-a1a4-3fa1ebc60881
+    logs: 4dcbf5b8-95b0-41e5-a066-f946a23140a6
+    env: c78d6e29-3533-4b99-b550-8eb764988429
+    backend: conda (module env built in-job)
+    at: '2026-11-07T14:31:09Z'
+omni_thoa_example@0.1.0/until-REPORT/735282fabc82205c:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/8c11e01c9c3fd583
+  - omni_thoa_example@0.1.0/until-FILT/a6251f9df5d15189
+  results: 02f143f2-c0e6-4eb4-9afd-0633c065ca79
+  files:
+    out/REPORT.report_quarto.be1.default/be1_report.html: 0b36b6bc-c356-4aab-ae9e-daf3aaecc26b
+    out/REPORT.report_quarto.be1.default/be1_report.qmd: ca2af7a3-28fb-4fed-b016-811faad60530
+    out/REPORT.report_quarto.be1.default/lineage.json: 3ac066c2-8458-4a3c-9bd6-8a6481ebf18e
+  runs:
+  - job: f2083408-fb70-47a6-a843-67bfdcb61176
+    output: f553e324-fc57-42d2-ac27-37d5f548bc39
+    logs: 22ae2fd2-b87c-4b04-ac4f-df964b763657
+    env: 4d0b10c5-5bd7-464f-9dff-1a0747d816e4
+    backend: host
+    at: '2026-11-07T14:37:10Z'
