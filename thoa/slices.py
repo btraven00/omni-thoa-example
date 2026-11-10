@@ -38,6 +38,10 @@ WORK = Path(".work/slices")
 # Envs thoa's builder can't build (bioconda-first strict priority, URL
 # channels dropped; thoa-go BUGS.txt 6, 9): build them in the job instead.
 IN_JOB = {"scrapper"}
+# thoa job size (cores, RAM GB, disk GB) when the plan asks for less. Disk also
+# holds staged inputs and in-job conda envs, which the plan's disk_mb doesn't count.
+# ponytail: one floor for thoa; per-remote/host profiles replace it when there's a second remote
+FLOOR = (4, 16, 40)
 LOG_GLOBS = ["out/.logs/*", "out/job.log", "out/boot.log", "out/Snakefile", "out/.metadata/*", "*/performance.txt", "out/.hooks/*"]
 # ob, from a pushed commit of OB_SRC (main + #407 + hooks): the VM installs
 # the GitHub archive of that commit, and .work/ob the same tree, for slice keys.
@@ -128,8 +132,23 @@ def results(job):
     return {p: i for p, i in rel.items() if not any(fnmatch.fnmatch(p, g) for g in LOG_GLOBS)}
 
 
-def run_slice(stage, env, upstream, src):
-    """upstream: (output dataset, job) of the previous slice, or None."""
+def job_size(st):
+    """(cores, RAM GB, disk GB) for stage st's job: the most any of its modules
+    asks for through ob's `resources` (a module's replaces its stage's), at
+    least FLOOR. THOA_RES=cores,ram,disk overrides it for every job."""
+    if os.environ.get("THOA_RES"):
+        return tuple(int(x) for x in os.environ["THOA_RES"].split(","))
+    cores, ram, disk = FLOOR
+    for m in st["modules"]:
+        r = m.get("resources") or st.get("resources") or {}
+        cores = max(cores, r.get("cores") or 0)
+        ram = max(ram, -(-(r.get("mem_mb") or 0) // 1024))
+        disk = max(disk, -(-(r.get("disk_mb") or 0) // 1024))
+    return cores, ram, disk
+
+
+def run_slice(stage, env, upstream, src, size):
+    """upstream: (output dataset, job) of the previous slice, or None; size: job_size()."""
     in_job = env in IN_JOB
     WORK.mkdir(parents=True, exist_ok=True)
     vars = {**src, **({"SLICE_BACKEND": "conda"} if in_job else {})}
@@ -148,12 +167,13 @@ def run_slice(stage, env, upstream, src):
            + " ".join(f"{k}={shlex.quote(v)}" for k, v in vars.items() if k != "PLAN_URL")
            + f" bash thoa/slice.sh --until {stage} -- --rerun-triggers mtime")
     args = [THOA, "run", "-env", f"envs/thoa/{'ob' if in_job else env}.yml",
-            "-cmd", cmd, "-out", "out", "-c", "4", "-ram", "16", "-disk", "40"]
+            "-cmd", cmd, "-out", "out", "-c", str(size[0]), "-ram", str(size[1]), "-disk", str(size[2])]
     if upstream:
         tsv = WORK / f"{stage}-stage.tsv"
         tsv.write_text("".join(f"{p}\t{i}\n" for p, i in sorted(staged.items())))
         args += ["-d", upstream[0], "-stage", str(tsv)]
-    print(f"{stage}: running a thoa job ({'in-job env' if in_job else 'env ' + env}, "
+    print(f"{stage}: running a thoa job ({'in-job env' if in_job else 'env ' + env}, {size[0]} cores, "
+          f"{size[1]} GB RAM, {size[2]} GB disk, "
           f"{want} files staged from {upstream[0] if upstream else 'nothing'})")
     for attempt in range(3):
         with open(WORK / f"{stage}.err", "w") as err:
@@ -169,7 +189,7 @@ def run_slice(stage, env, upstream, src):
     if p.returncode or not m:
         fail(stage, m and m[1], output)
     run = {"job": m[1], "output": output, "env": m[2], "plan_commit": src["PLAN_URL"].rsplit("/", 1)[1][:-7],
-           "ob": src["OB_VERSION"], "backend": "conda (module env built in-job)" if in_job else "host",
+           "ob": src["OB_VERSION"], "size": "{}c/{}G/{}G".format(*size), "backend": "conda (module env built in-job)" if in_job else "host",
            "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     try:  # costs are a side record: never lose the slice over them
         run.update(record_cost(stage, m[1], output))
@@ -257,7 +277,7 @@ def main(dry=False, fetch_to=None):
                        "OB_URL": f"https://github.com/{OB_REPO}/archive/{ob}.tar.gz",
                        "OB_VERSION": version, "OBCOST_URL": OBCOST_URL}
             upstream = (lock[done[-1]]["results"], lock[done[-1]]["runs"][-1]["job"]) if done else None
-            results, result_files, run = run_slice(stage, envs.pop(), upstream, src)
+            results, result_files, run = run_slice(stage, envs.pop(), upstream, src, job_size(st))
             entry = lock.setdefault(key, {"upstream": list(done)})
             entry.update(results=results, files=result_files)
             entry.setdefault("runs", []).append(run)

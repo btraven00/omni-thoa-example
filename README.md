@@ -47,6 +47,16 @@ its output dataset, whose listed paths drift (thoa-go BUGS.txt 12). When a
 job fails, the driver prints the tail of the VM's `out/boot.log` and
 `out/job.log`.
 
+### Job size
+
+A stage's job gets the most any of its modules asks for through ob's
+`resources` in the plan (`cores`, `mem_mb`, `disk_mb`; a module's block
+replaces its stage's), rounded up to whole GB and never below 4 cores, 16 GB
+RAM and 40 GB disk (`FLOOR` in `thoa/slices.py`; disk also holds staged
+inputs and in-job conda envs). `THOA_RES=8,32,60` sets cores, RAM GB and disk
+GB for every job of a run. The plan's resources go into ob's Snakefile, so
+changing them changes the slice keys; `THOA_RES` doesn't.
+
 ### Requirements
 
 | What | Default | Override |
