@@ -1,9 +1,9 @@
 id: omni_thoa_example
 name: omni-thoa-example
 description: >
-  A slice of omni-scrna/split-stages-plan (DATA + FILT) whose DATA stage
-  fetches through hapiq, from the thoa data lake when hapiq.lock pins the
-  dataset.
+  A slice of omni-scrna/split-stages-plan (DATA, FILT, NORM, FEAT; one
+  module each) whose DATA stage fetches through hapiq, from the thoa data
+  lake when hapiq.lock pins the dataset.
 benchmarker: "ben <ben.uzh@proton.me>"
 version: "0.1.0"
 # Named outputs: every module gets --output id=PATH (omnibenchmark
@@ -71,6 +71,47 @@ stages:
           url: https://github.com/omni-scrna/scrapper
           commit: 2a83f79  # api-0.8.0: --output id=PATH
           entrypoint: filter
+
+  # NORM and FEAT: split-stages-plan api-0.8.0's contracts, scrapper only.
+  # fe_scrapper's `requires: {runs_feat: "yes"}` is left out: nothing here
+  # provides it.
+  - id: NORM
+    inputs:
+      - rawdata_h5ad
+      - filtered_cellids
+      - filtered_featureids
+    outputs:
+      - id: normalized_h5
+        path: "{module.id}_normalized.h5"
+    modules:
+      - id: nr_scrapper
+        name: "scrapper-based normalization"
+        software_environment: scrapper
+        repository:
+          url: https://github.com/omni-scrna/scrapper
+          commit: 2a83f79  # api-0.8.0: --output id=PATH
+          entrypoint: normalize
+
+  - id: FEAT
+    inputs:
+      - rawdata_h5ad
+      - normalized_h5
+      - filtered_cellids
+      - filtered_featureids
+      - properties_info
+    outputs:
+      - id: normalized_selected_h5
+        path: "{module.id}_normalized_selected.h5"
+    modules:
+      - id: fe_scrapper
+        name: "scrapper-based gene selection"
+        software_environment: scrapper
+        repository:
+          url: https://github.com/omni-scrna/scrapper
+          commit: 2a83f79  # api-0.8.0: --output id=PATH
+          entrypoint: select
+        parameters:
+          - number_selected: 2000
 
   # One report per dataset: gathers every DATA and FILT result of that dataset.
   - id: REPORT

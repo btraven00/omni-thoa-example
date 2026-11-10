@@ -1,6 +1,7 @@
 # omni-thoa-example
 
-A small omnibenchmark plan (`plan.yaml`: DATA → FILT → REPORT) that runs
+A small omnibenchmark plan (`plan.yaml`: DATA → FILT → NORM → FEAT → REPORT,
+one module per stage) that runs
 locally with `ob run`, or on thoa as cached slices.
 
 ## Run on thoa
