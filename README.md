@@ -24,8 +24,8 @@ For each stage in plan order, `thoa/slices.py`:
 1. computes the stage's **slice key** (`thoa/slicekey.sh`),
    `{id}@{version}/until-{STAGE}/{hash}`. The hash covers the ob version, ob's
    dry-run Snakefile up to that stage (module commits, parameters, commands)
-   and the env files. It gets a `+dirty` suffix when `plan.yaml`, `envs/` or
-   `thoa/slice.sh` have uncommitted changes.
+   the env files and `hapiq.lock`. It gets a `+dirty` suffix when one of those
+   has uncommitted changes.
 2. looks the key up in **`slices.lock`**. If the key is there and its thoa
    dataset still exists, the stage is reused.
 3. otherwise it runs **one thoa job**, which uploads nothing. The VM fetches
@@ -46,6 +46,18 @@ upstream rules. Staging paths come from the upstream job's record, not from
 its output dataset, whose listed paths drift (thoa-go BUGS.txt 12). When a
 job fails, the driver prints the tail of the VM's `out/boot.log` and
 `out/job.log`.
+
+### Data from hapiq.lock
+
+DATA's module fetches its raw files with hapiq. `hapiq.lock` pins them to a
+copy on thoa (`hapiq download geo GSE243665 --out data/be1 ...`, then
+`hapiq lock add data/be1/GSE243665`; commit the lock). The first slice's job
+stages that copy at `hapiq-staged/<digest>/<path>`, using the file ids in the
+lock, and sets `HAPIQ_LOCK` and `HAPIQ_STAGED`. hapiq checks each staged
+file's sha256 against the lock and links it into place, so the job neither
+downloads from GEO nor calls thoa's API, and needs no API key. Without
+`hapiq.lock`, DATA downloads upstream. All entries of the lock must share one
+thoa dataset, because a job stages one.
 
 ### Job size
 

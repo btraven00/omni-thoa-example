@@ -19,7 +19,7 @@ trap 'rm -rf "$d"' EXIT
 "$OB" run plan.yaml --dry --until "$STAGE" --out-dir "$d/out" >/dev/null
 id=$(sed -n 's/^id: *//p' plan.yaml | tr -d '"')
 ver=$(sed -n 's/^version: *//p' plan.yaml | tr -d '"')
-INPUTS=(envs plan.yaml thoa/slice.sh thoa/hooks)
+INPUTS=(envs plan.yaml thoa/slice.sh thoa/hooks hapiq.lock)
 h=$({
   "$OB" --version
   grep -v '^# Generated:' "$d/out/Snakefile"

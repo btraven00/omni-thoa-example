@@ -14,4 +14,4 @@ dependencies:
       - pyyaml
       # hapiq with lock support (btraven00/hapiq feat/remotes d9fe923), built
       # from source by its hatch hook with `go`; a source archive needs no git.
-      - hapiq @ https://github.com/btraven00/hapiq/archive/d9fe923.tar.gz#subdirectory=python
+      - hapiq @ https://github.com/btraven00/hapiq/archive/bffa08f.tar.gz#subdirectory=python

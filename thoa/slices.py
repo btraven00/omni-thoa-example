@@ -35,6 +35,8 @@ import envs as thoa_envs
 THOA = os.environ.get("THOA", str(Path.home() / "lab/thoa-go/thoa"))
 LOCK = Path("slices.lock")
 WORK = Path(".work/slices")
+# The first slice stages hapiq.lock's datasets here; hapiq takes them from it.
+HAPIQ_LOCK, STAGED = Path("hapiq.lock"), "hapiq-staged"
 # Envs thoa's builder can't build (bioconda-first strict priority, URL
 # channels dropped; thoa-go BUGS.txt 6, 9): build them in the job instead.
 IN_JOB = {"scrapper"}
@@ -147,34 +149,57 @@ def job_size(st):
     return cores, ram, disk
 
 
+def hapiq_staged():
+    """The first slice's input: the datasets hapiq.lock pins, staged at
+    STAGED/<digest>/<path>, where hapiq (HAPIQ_STAGED) takes them without a
+    thoa call. thoa stages one dataset per job, so they must share one."""
+    if not HAPIQ_LOCK.exists():
+        return None
+    datasets, files = set(), {}
+    for e in yaml.safe_load(HAPIQ_LOCK.read_text()) or []:
+        r = next(r for r in e.get("remotes", []) if r["type"] == "thoa")
+        datasets.add(r["dataset"])
+        files.update({f"{STAGED}/{e['digest']}/{p}": i for p, i in r["files"].items()})
+    if len(datasets) > 1:
+        sys.exit(f"{HAPIQ_LOCK} pins {len(datasets)} thoa datasets; a job can stage one")
+    return datasets.pop(), files
+
+
 def run_slice(stage, env, upstream, src, size):
     """upstream: (output dataset, job) of the previous slice, or None; size: job_size()."""
     in_job = env in IN_JOB
     WORK.mkdir(parents=True, exist_ok=True)
     vars = {**src, **({"SLICE_BACKEND": "conda"} if in_job else {})}
+    hapiq = ""
+    if upstream:
+        dataset, staged = upstream[0], results(upstream[1])
+    elif h := hapiq_staged():
+        (dataset, staged), hapiq = h, f"HAPIQ_LOCK=$PWD/{HAPIQ_LOCK} HAPIQ_STAGED=$PWD/{STAGED} "
+    else:
+        dataset, staged = None, {}
     # thoa can start a job before its inputs are all staged (2 of 8, job
-    # bd0ee8aa): wait for every upstream file, up to 30 min, then fail loudly.
-    staged = results(upstream[1]) if upstream else {}
+    # bd0ee8aa): wait for every staged file, up to 30 min, then fail loudly.
     want = len(staged)
-    have = "$(find out -type f ! -name boot.log | wc -l)"
+    files = f"find out {STAGED} -type f ! -name boot.log 2>/dev/null"
+    have = f"$({files} | wc -l)"
     # Staged files land in any order (the big ones last), so snakemake's mtime
     # trigger would rerun upstream rules: give them all one timestamp.
     wait = (f"for i in $(seq 360); do [ {have} -ge {want} ] && break; sleep 5; done; "
             f"echo staged {have}/{want}; [ {have} -ge {want} ] && "
-            f"find out -type f ! -name boot.log -exec touch -d @1000000000 {{}} +")
+            f"{{ {files} -exec touch -d @1000000000 {{}} + || true; }}")
     # the bootstrap logs into out/, so a job that fails before slice.sh leaves a trace
     cmd = (f"mkdir -p out && {{ set -x; {wait} && {FETCH} {shlex.quote(src['PLAN_URL'])}; }} > out/boot.log 2>&1 && "
-           + " ".join(f"{k}={shlex.quote(v)}" for k, v in vars.items() if k != "PLAN_URL")
+           + hapiq + " ".join(f"{k}={shlex.quote(v)}" for k, v in vars.items() if k != "PLAN_URL")
            + f" bash thoa/slice.sh --until {stage} -- --rerun-triggers mtime")
     args = [THOA, "run", "-env", f"envs/thoa/{'ob' if in_job else env}.yml",
             "-cmd", cmd, "-out", "out", "-c", str(size[0]), "-ram", str(size[1]), "-disk", str(size[2])]
-    if upstream:
+    if dataset:
         tsv = WORK / f"{stage}-stage.tsv"
         tsv.write_text("".join(f"{p}\t{i}\n" for p, i in sorted(staged.items())))
-        args += ["-d", upstream[0], "-stage", str(tsv)]
+        args += ["-d", dataset, "-stage", str(tsv)]
     print(f"{stage}: running a thoa job ({'in-job env' if in_job else 'env ' + env}, {size[0]} cores, "
           f"{size[1]} GB RAM, {size[2]} GB disk, "
-          f"{want} files staged from {upstream[0] if upstream else 'nothing'})")
+          f"{want} files staged from {dataset or 'nothing'}{' (hapiq.lock)' if hapiq else ''})")
     for attempt in range(3):
         with open(WORK / f"{stage}.err", "w") as err:
             p = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=err)
