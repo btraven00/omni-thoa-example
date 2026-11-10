@@ -124,30 +124,21 @@ def exists(dataset):
     return subprocess.run([THOA, "ls", "-q", dataset], capture_output=True).returncode == 0
 
 
-def outputs(job):
-    """{path under the cwd: file id} of all a job's outputs. From the job
-    record's absolute output_context: the output dataset's own listed paths
-    drift (out/ was dropped some hours after the job) or omit files, logs
-    among them (thoa-go BUGS.txt 12, 14)."""
+def results(job):
+    """{path under the cwd: file id} of a job's outputs, logs excluded. From the
+    job record's absolute output_context: the output dataset's own listed paths
+    drift (out/ was dropped some hours after the job) or omit files (thoa-go
+    BUGS.txt 12, 14)."""
     rec = json.loads(sh(THOA, "job", job))
     cwd = rec["current_working_directory"].rstrip("/") + "/"
-    return {p[len(cwd):]: i for p, i in rec["output_context"].items() if p.startswith(cwd)}
+    rel = {p[len(cwd):]: i for p, i in rec["output_context"].items() if p.startswith(cwd)}
+    return {p: i for p, i in rel.items() if not any(fnmatch.fnmatch(p, g) for g in LOG_GLOBS)}
 
 
-def results(job):
-    """A job's outputs, logs excluded."""
-    return {p: i for p, i in outputs(job).items() if not any(fnmatch.fnmatch(p, g) for g in LOG_GLOBS)}
-
-
-def download(job, output, globs, dest):
+def download(job, globs, dest):
     """Download a job's outputs matching globs into dest, at their paths under
-    the cwd (out/...), by file id. Returns how many matched."""
-    want = {p: i for p, i in outputs(job).items() if any(fnmatch.fnmatch(p, g) for g in globs)}
-    if want:
-        tsv = WORK / f"{Path(dest).name}.tsv"
-        tsv.write_text("".join(f"{p}\t{i}\n" for p, i in sorted(want.items())))
-        sh(THOA, "download", "-q", "-stage", str(tsv), output, str(dest))
-    return len(want)
+    the cwd (out/...)."""
+    sh(THOA, "download", "-q", "-job", *[a for g in globs for a in ("-i", g)], job, str(dest))
 
 
 def job_size(st):
@@ -210,9 +201,9 @@ def run_slice(stage, env, upstream, src, size):
     args = [THOA, "run", "-env", f"envs/thoa/{'ob' if in_job else env}.yml",
             "-cmd", cmd, "-out", "out", "-c", str(size[0]), "-ram", str(size[1]), "-disk", str(size[2])]
     if dataset:
-        tsv = WORK / f"{stage}-stage.tsv"
+        tsv = WORK / f"{stage}-context.tsv"
         tsv.write_text("".join(f"{p}\t{i}\n" for p, i in sorted(staged.items())))
-        args += ["-d", dataset, "-stage", str(tsv)]
+        args += ["-d", dataset, "-context", str(tsv)]
     print(f"{stage}: running a thoa job ({'in-job env' if in_job else 'env ' + env}, {size[0]} cores, "
           f"{size[1]} GB RAM, {size[2]} GB disk, "
           f"{want} files staged from {dataset or 'nothing'}{' (hapiq.lock)' if hapiq else ''})")
@@ -245,7 +236,7 @@ def fail(stage, job, output):
         sys.exit(msg + (f"; no outputs, see `thoa job {job}`" if job else ""))
     dest = WORK / f"{stage}-failed"
     try:
-        download(job, output, ["out/job.log", "out/boot.log"], dest)
+        download(job, ["out/job.log", "out/boot.log"], dest)
     except subprocess.CalledProcessError:
         pass
     for name in ("boot.log", "job.log"):
@@ -279,7 +270,7 @@ def record_cost(stage, job, output):
             break
         time.sleep(10)
     dest = WORK / f"{stage}-hooks"
-    download(job, output, ["out/.hooks/*"], dest)
+    download(job, ["out/.hooks/*"], dest)
     attrs = ["-a", "remote=thoa", "-a", f"job={job}"]
     for k, v in cost.items():
         attrs += ["-a", f"{k}={v}"]
