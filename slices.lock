@@ -173,3 +173,132 @@ omni_thoa_example@0.1.0/until-REPORT/a81bc82910d6b99c:
     at: '2026-11-10T09:17:11Z'
     billed_cost_usd: 0.02075073408
     credits_debited: 3
+omni_thoa_example@0.1.0/until-DATA/c0b5bc057e3cb2a9:
+  upstream: []
+  results: 09506522-6f38-472e-a234-d151480f822c
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+  runs:
+  - job: a13d1fbd-4eaf-47ea-a69e-4f0661826a41
+    output: 09506522-6f38-472e-a234-d151480f822c
+    env: e77cc497-048a-486a-a59b-d3f753cd4631
+    plan_commit: cbc435b36ec120ce2cf89297147114d5e9df241f
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: host
+    at: '2026-11-10T09:33:46Z'
+    billed_cost_usd: 0.07277455008
+    credits_debited: 8
+omni_thoa_example@0.1.0/until-FILT/2cab0ad61e093275:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/c0b5bc057e3cb2a9
+  results: 6a1f3ac2-8be5-442a-85d0-1c7729f29528
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+  runs:
+  - job: 7ad82930-bd24-42ad-b8e7-f1c156ab9ce8
+    output: 6a1f3ac2-8be5-442a-85d0-1c7729f29528
+    env: c78d6e29-3533-4b99-b550-8eb764988429
+    plan_commit: cbc435b36ec120ce2cf89297147114d5e9df241f
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: conda (module env built in-job)
+    at: '2026-11-10T09:39:39Z'
+    billed_cost_usd: 0.042991632960000005
+    credits_debited: 5
+omni_thoa_example@0.1.0/until-NORM/3bb1b342886d995a:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/c0b5bc057e3cb2a9
+  - omni_thoa_example@0.1.0/until-FILT/2cab0ad61e093275
+  results: 3409cc6a-dd6b-4cda-836a-209a0b563a4e
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/nr_scrapper_normalized.h5: a240f05c-4483-40c1-8e7a-355c48ca5f5e
+  runs:
+  - job: 8c72fdf8-7b9e-4b6e-bf41-25c43d597e58
+    output: 3409cc6a-dd6b-4cda-836a-209a0b563a4e
+    env: c78d6e29-3533-4b99-b550-8eb764988429
+    plan_commit: cbc435b36ec120ce2cf89297147114d5e9df241f
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: conda (module env built in-job)
+    at: '2026-11-10T09:45:46Z'
+    billed_cost_usd: 0.043914795648
+    credits_debited: 5
+omni_thoa_example@0.1.0/until-FEAT/acdde663c6f3f249:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/c0b5bc057e3cb2a9
+  - omni_thoa_example@0.1.0/until-FILT/2cab0ad61e093275
+  - omni_thoa_example@0.1.0/until-NORM/3bb1b342886d995a
+  results: 92a03588-3dfe-4a06-83b3-9ec809e36888
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/nr_scrapper_normalized.h5: a240f05c-4483-40c1-8e7a-355c48ca5f5e
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/parameters.json: b077d6c2-1815-4bfa-87f9-11d0e50bb82c
+    ? out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/fe_scrapper_normalized_selected.h5
+    : ded8e9e0-cd04-46a9-809a-83de6659af39
+  runs:
+  - job: 32dc7aad-3b9b-4bff-af66-6d9072f2ca3e
+    output: 92a03588-3dfe-4a06-83b3-9ec809e36888
+    env: c78d6e29-3533-4b99-b550-8eb764988429
+    plan_commit: cbc435b36ec120ce2cf89297147114d5e9df241f
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: conda (module env built in-job)
+    at: '2026-11-10T09:52:06Z'
+    billed_cost_usd: 0.042002304384
+    credits_debited: 5
+omni_thoa_example@0.1.0/until-REPORT/736de5c7bad2d03c:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/c0b5bc057e3cb2a9
+  - omni_thoa_example@0.1.0/until-FILT/2cab0ad61e093275
+  - omni_thoa_example@0.1.0/until-NORM/3bb1b342886d995a
+  - omni_thoa_example@0.1.0/until-FEAT/acdde663c6f3f249
+  results: 5ce51727-9c4f-4c7f-8765-2fc46f328d27
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/REPORT.report_quarto.be1.default/lineage.json: 3ac066c2-8458-4a3c-9bd6-8a6481ebf18e
+    out/REPORT.report_quarto.be1.default/be1_report.qmd: ca2af7a3-28fb-4fed-b016-811faad60530
+    out/REPORT.report_quarto.be1.default/be1_report.html: 0b36b6bc-c356-4aab-ae9e-daf3aaecc26b
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/nr_scrapper_normalized.h5: a240f05c-4483-40c1-8e7a-355c48ca5f5e
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/parameters.json: b077d6c2-1815-4bfa-87f9-11d0e50bb82c
+    ? out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/fe_scrapper_normalized_selected.h5
+    : ded8e9e0-cd04-46a9-809a-83de6659af39
+  runs:
+  - job: c45283ba-8436-4016-9564-cdad52bf7c1e
+    output: 5ce51727-9c4f-4c7f-8765-2fc46f328d27
+    env: 267f4c25-2393-4b52-8b4a-eab733ffb1c9
+    plan_commit: cbc435b36ec120ce2cf89297147114d5e9df241f
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: host
+    at: '2026-11-10T09:56:13Z'
+    billed_cost_usd: 0.024535648896000004
+    credits_debited: 3
