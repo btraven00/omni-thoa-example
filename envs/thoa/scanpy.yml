@@ -1,0 +1,35 @@
+name: env
+channels:
+- bioconda
+- conda-forge
+- https://prefix.dev/almost-conductor
+- nodefaults
+dependencies:
+- anndata >=0.12.11,<0.13
+- h5py >=3.16.0,<4
+- leidenalg >=0.11.0,<0.12
+- numpy >=2.4.3,<3
+- obkit
+- pip
+- polars >=1,<2
+- python >=3.14.4,<3.15
+- python-igraph >=1.0.0,<2
+- scanpy >=1.12.1,<2
+- scikit-misc >=0.5,<0.6
+- scipy >=1.17.1,<2
+- pip:
+  - PyYAML
+  - click>=8.1.7
+  - copier>=9.0.0
+  - dulwich>=0.22.0
+  - filelock>=3.4.0
+  - humanfriendly
+  - pathspec>=0.12.0
+  - pydantic
+  - pydot>=3.0.2
+  - python-dateutil>=2.9.0.post0
+  - python-dotenv>=1.0.0
+  - rich>=13.0.0
+  - snakemake>=9.0
+  - spdx-license-list>=3.19
+  - tqdm>=4.66.4

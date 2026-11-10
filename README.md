@@ -1,7 +1,7 @@
 # omni-thoa-example
 
-A small omnibenchmark plan (`plan.yaml`: DATA → FILT → NORM → FEAT → REPORT,
-one module per stage) that runs
+A small omnibenchmark plan (`plan.yaml`: DATA → FILT → NORM → FEAT → PCA → REPORT,
+one module per stage, three in PCA) that runs
 locally with `ob run`, or on thoa as cached slices.
 
 ## Run on thoa
@@ -85,15 +85,18 @@ The driver checks these and the thoa login before doing anything else.
 
 - Modules are pinned by `repository.url` and `commit` to a **pushed** commit;
   ob clones them on the VM.
-- A stage's modules share one software environment, because each stage is one
-  job. Stages run in plan order, each on top of the previous one: a stage that
-  needs two slices' outputs (a fan-in) can't run until thoa can stage two datasets.
+- Each stage is one job, which runs one software environment, unless all of
+  the stage's envs are in `IN_JOB`: snakemake then builds each module's env
+  in the job (PCA: scanpy and scrapper).
+- Stages run in plan order, each on top of the previous one: a stage that
+  needs two slices' outputs (a fan-in) can't run until thoa can stage two
+  datasets.
 - `envs/thoa/*.yml` is generated from the plan's envs plus ob's dependencies
   (`thoa/envs.py`, run by the driver). Don't edit those files.
 - An env that thoa's builder can't build is listed in `IN_JOB` in
   `thoa/slices.py`, and snakemake builds it inside the job instead. `scrapper`
-  is the one here: its R channels don't survive thoa's builder (thoa-go
-  BUGS.txt 6, 9).
+  and `scanpy` are the ones here: their R and URL channels don't survive thoa's
+  builder (thoa-go BUGS.txt 6, 9).
 
 ### Files
 

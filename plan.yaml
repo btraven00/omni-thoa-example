@@ -1,9 +1,9 @@
 id: omni_thoa_example
 name: omni-thoa-example
 description: >
-  A slice of omni-scrna/split-stages-plan (DATA, FILT, NORM, FEAT; one
-  module each) whose DATA stage fetches through hapiq, from the thoa data
-  lake when hapiq.lock pins the dataset.
+  A slice of omni-scrna/split-stages-plan (DATA, FILT, NORM and FEAT with
+  one module each, PCA with three) whose DATA stage fetches through hapiq,
+  from the thoa data lake when hapiq.lock pins the dataset.
 benchmarker: "ben <ben.uzh@proton.me>"
 version: "0.1.0"
 # Named outputs: every module gets --output id=PATH (omnibenchmark
@@ -23,6 +23,9 @@ software_environments:
   scrapper:
     name: scrapper multi-module
     conda: envs/scrapper.yml
+  scanpy:
+    name: scanpy multi-module
+    conda: envs/scanpy.yml
   report:
     name: quarto + pandas
     conda: envs/report.yml
@@ -112,6 +115,59 @@ stages:
           entrypoint: select
         parameters:
           - number_selected: 2000
+
+  # Three PCA modules, four runs; scanpy and scrapper envs, both built in the job.
+  - id: PCA
+    inputs:
+      - normalized_selected_h5
+    outputs:
+      - id: embedding_tsv
+        path: "{module.id}_embedding.tsv"
+      - id: loadings_tsv
+        path: "{module.id}_loadings.tsv"
+    resources:
+      cores: 4
+    modules:
+      - id: pc_scanpy
+        name: "scanpy PCA, sparse arpack and dense randomized"
+        software_environment: scanpy
+        repository:
+          url: https://github.com/omni-scrna/scanpy
+          commit: 754052a  # api-0.8.0
+          entrypoint: pca
+        parameters:
+          - solver: [arpack]
+            dense: "false"
+            n_components: 50
+            random_seed: 42
+          - solver: [randomized]
+            dense: "true"
+            n_components: 50
+            random_seed: 42
+      - id: pc_exact
+        name: "scanpy PCA, exact (full SVD, float64): the reference"
+        software_environment: scanpy
+        repository:
+          url: https://github.com/omni-scrna/scanpy
+          commit: 754052a  # api-0.8.0
+          entrypoint: pca
+        parameters:
+          - solver: full
+            dense: "true"
+            dtype: float64
+            n_components: 50
+            random_seed: 42
+      - id: pc_scrapper
+        name: "scrapper PCA (irlba)"
+        software_environment: scrapper
+        repository:
+          url: https://github.com/omni-scrna/scrapper
+          commit: 2a83f79  # api-0.8.0
+          entrypoint: pca
+        parameters:
+          - solver: [irlba]
+            n_components: 50
+            random_seed: 42
 
   # One report per dataset: gathers every DATA and FILT result of that dataset.
   - id: REPORT

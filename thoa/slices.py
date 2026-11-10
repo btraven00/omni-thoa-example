@@ -39,7 +39,7 @@ WORK = Path(".work/slices")
 HAPIQ_LOCK, STAGED = Path("hapiq.lock"), "hapiq-staged"
 # Envs thoa's builder can't build (bioconda-first strict priority, URL
 # channels dropped; thoa-go BUGS.txt 6, 9): build them in the job instead.
-IN_JOB = {"scrapper"}
+IN_JOB = {"scrapper", "scanpy"}
 # thoa job size (cores, RAM GB, disk GB) when the plan asks for less. Disk also
 # holds staged inputs and in-job conda envs, which the plan's disk_mb doesn't count.
 # ponytail: one floor for thoa; per-remote/host profiles replace it when there's a second remote
@@ -301,8 +301,9 @@ def main(dry=False, fetch_to=None):
     for st in plan["stages"]:
         stage = st["id"]
         envs = {m["software_environment"] for m in st["modules"]}
-        if len(envs) != 1:
-            sys.exit(f"{stage}: modules on {len(envs)} envs; one job per stage needs one")
+        # a job runs one host env; snakemake builds in-job envs per module
+        if len(envs) > 1 and not envs <= IN_JOB:
+            sys.exit(f"{stage}: modules on envs {sorted(envs)}; a job runs one, unless all are in IN_JOB")
         try:
             key = sh("thoa/slicekey.sh", stage, env=keyenv).strip()
         except subprocess.CalledProcessError as e:
@@ -320,7 +321,7 @@ def main(dry=False, fetch_to=None):
                        "OB_URL": f"https://github.com/{OB_REPO}/archive/{ob}.tar.gz",
                        "OB_VERSION": version, "OBCOST_URL": OBCOST_URL}
             upstream = (lock[done[-1]]["results"], lock[done[-1]]["runs"][-1]["job"]) if done else None
-            results, result_files, run = run_slice(stage, envs.pop(), upstream, src, job_size(st))
+            results, result_files, run = run_slice(stage, min(envs), upstream, src, job_size(st))
             entry = lock.setdefault(key, {"upstream": list(done)})
             entry.update(results=results, files=result_files)
             entry.setdefault("runs", []).append(run)
