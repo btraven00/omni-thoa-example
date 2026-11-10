@@ -85,6 +85,7 @@ stages:
       - id: report_html
         path: "{DATA}_report.html"
     modules:
+      # TODO there's a generic quarto report, check obcommons
       - id: report_quarto
         name: "Quarto report: cells and genes kept by FILT"
         software_environment: report
