@@ -372,3 +372,67 @@ omni_thoa_example@0.1.0/until-NORM/6959ce07d78a874b:
     at: '2026-11-10T11:49:33Z'
     billed_cost_usd: 0.05007863142
     credits_debited: 6
+omni_thoa_example@0.1.0/until-FEAT/5da1e6543200096b:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/109927858202f77f
+  - omni_thoa_example@0.1.0/until-FILT/58bc1c0df5c0b4e6
+  - omni_thoa_example@0.1.0/until-NORM/6959ce07d78a874b
+  results: 13604df4-7bb8-48a0-bce3-d5618adfbfb3
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/nr_scrapper_normalized.h5: a240f05c-4483-40c1-8e7a-355c48ca5f5e
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/parameters.json: b077d6c2-1815-4bfa-87f9-11d0e50bb82c
+    ? out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/fe_scrapper_normalized_selected.h5
+    : ded8e9e0-cd04-46a9-809a-83de6659af39
+  runs:
+  - job: ac0d64b7-ef92-4565-ad73-a050c10ac9b2
+    output: 13604df4-7bb8-48a0-bce3-d5618adfbfb3
+    env: c78d6e29-3533-4b99-b550-8eb764988429
+    plan_commit: ea59caa072259298bc692436b0718bead576b6bc
+    ob: 0.8.0.dev0+integ.6b018556
+    size: 4c/16G/40G
+    backend: conda (module env built in-job)
+    at: '2026-11-10T14:35:03Z'
+    billed_cost_usd: 0.04058512704
+    credits_debited: 5
+omni_thoa_example@0.1.0/until-REPORT/c2bb3aca85f7fd1f:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/109927858202f77f
+  - omni_thoa_example@0.1.0/until-FILT/58bc1c0df5c0b4e6
+  - omni_thoa_example@0.1.0/until-NORM/6959ce07d78a874b
+  - omni_thoa_example@0.1.0/until-FEAT/5da1e6543200096b
+  results: 2fc42cb0-34db-40c6-b8f3-00c9cd523d93
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/REPORT.report_quarto.be1.default/lineage.json: 3ac066c2-8458-4a3c-9bd6-8a6481ebf18e
+    out/REPORT.report_quarto.be1.default/be1_report.qmd: ca2af7a3-28fb-4fed-b016-811faad60530
+    out/REPORT.report_quarto.be1.default/be1_report.html: 0b36b6bc-c356-4aab-ae9e-daf3aaecc26b
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/nr_scrapper_normalized.h5: a240f05c-4483-40c1-8e7a-355c48ca5f5e
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/parameters.json: b077d6c2-1815-4bfa-87f9-11d0e50bb82c
+    ? out/DATA.be1.44d965bf/FILT.fi_scrapper.default/NORM.nr_scrapper.default/FEAT.fe_scrapper.b1d1078c/fe_scrapper_normalized_selected.h5
+    : ded8e9e0-cd04-46a9-809a-83de6659af39
+  runs:
+  - job: fc7fe4b9-bccb-4ade-b0c3-14187686c096
+    output: 2fc42cb0-34db-40c6-b8f3-00c9cd523d93
+    env: 267f4c25-2393-4b52-8b4a-eab733ffb1c9
+    plan_commit: ea59caa072259298bc692436b0718bead576b6bc
+    ob: 0.8.0.dev0+integ.6b018556
+    size: 4c/16G/40G
+    backend: host
+    at: '2026-11-10T14:39:18Z'
+    billed_cost_usd: 0.019264178496000005
+    credits_debited: 2
