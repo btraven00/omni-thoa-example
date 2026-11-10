@@ -13,7 +13,7 @@ dependencies:
   - copier>=9.0.0
   - dulwich>=0.22.0
   - filelock>=3.4.0
-  - hapiq @ https://github.com/btraven00/hapiq/archive/d9fe923.tar.gz#subdirectory=python
+  - hapiq @ https://github.com/btraven00/hapiq/archive/bffa08f.tar.gz#subdirectory=python
   - humanfriendly
   - pandas
   - pathspec>=0.12.0
