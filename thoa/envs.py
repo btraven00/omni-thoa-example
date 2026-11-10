@@ -1,7 +1,7 @@
 """Write envs/thoa/<env>.yml: each software environment of the plan plus ob's
 dependencies, so a thoa job can run ob with software_backend host inside it.
 
-    python thoa/envs.py [plan.yaml]
+    python thoa/envs.py [plan.yaml]      (thoa/slices.py runs it)
 
 ob itself is installed at job start (thoa/slice.sh, pip --no-deps), because its
 version comes from git and a source archive has none.
@@ -54,6 +54,13 @@ def thoa_env(env: dict) -> dict:
     return {**env, "dependencies": deps}
 
 
+def write(dst: Path, env: dict) -> None:
+    text = yaml.safe_dump(env, sort_keys=False)
+    if not dst.exists() or dst.read_text() != text:
+        dst.write_text(text)
+        print(f"updated {dst}")
+
+
 def main(plan_path: str = "plan.yaml") -> None:
     plan = yaml.safe_load(Path(plan_path).read_text())
     out = Path("envs/thoa")
@@ -61,13 +68,11 @@ def main(plan_path: str = "plan.yaml") -> None:
     for name, spec in plan["software_environments"].items():
         src = yaml.safe_load(Path(spec["conda"]).read_text())
         dst = out / f"{name}.yml"
-        dst.write_text(yaml.safe_dump(normal_form(thoa_env(src)), sort_keys=False))
-        print(dst)
+        write(dst, normal_form(thoa_env(src)))
     # ob alone, for slices whose module envs snakemake builds in the job
     # (slice.sh SLICE_BACKEND=conda): thoa can't build every module env.
     dst = out / "ob.yml"
-    dst.write_text(yaml.safe_dump(normal_form(thoa_env({"channels": ["conda-forge"]})), sort_keys=False))
-    print(dst)
+    write(dst, normal_form(thoa_env({"channels": ["conda-forge"]})))
 
 
 if __name__ == "__main__":

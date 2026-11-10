@@ -1,30 +1,26 @@
 #!/usr/bin/env bash
-# Runs on a thoa VM, in the uploaded copy of this repo: one slice of the plan.
-#   bash thoa/slice.sh [ob run flags, e.g. --until DATA]
+# Runs on a thoa VM, in this repo at the slice's commit (thoa/slices.py's job
+# command fetches it): one slice of the plan.
+#   OB_URL=... OB_VERSION=... OBCOST_URL=... bash thoa/slice.sh [ob run flags, e.g. --until DATA]
 # The job's thoa env is the slice's module env plus ob's deps (envs/thoa/,
 # from thoa/envs.py), so ob runs with software_backend host: nothing nested.
-# The job collects out/ into its output dataset, paths kept. The data is
-# out/<STAGE>.*/**; logs are out/.logs, out/job.log, out/Snakefile, and a
-# slice key pins only the data files' ids (slices.lock), so logs never feed
-# a downstream job.
+# out/ starts with the upstream slice's output (staged by thoa) and the job
+# collects all of it, so each slice's output dataset holds every slice so far:
+# the next job needs that one dataset only.
 set -euo pipefail
 
-mkdir -p out
-# Files already in out/ were staged from upstream slices; drop them at the end
-# so this job's output dataset holds only what this slice made.
-staged=$(mktemp); find out -type f > "$staged"
+mkdir -p out thoa/bin
 exec > >(tee -a out/job.log) 2>&1
-echo "== staged inputs: $(wc -l < "$staged") files"
+echo "== staged inputs: $(find out -type f | wc -l) files"
 echo "== $(date -Is) slice: $* (cwd $PWD)"
 echo "== python: $(command -v python) ($(python -V 2>&1))"
 
-# ob comes as a wheel built by thoa/slices.py (OB_SRC: main + #407 + hooks);
-# its deps are in the env.
-pip install -q --no-deps thoa/bin/omnibenchmark-*.whl
+# ob from a source archive of a pushed commit; its deps are in the env.
+SETUPTOOLS_SCM_PRETEND_VERSION=$OB_VERSION pip install -q --no-deps "$OB_URL"
 echo "== ob: $(ob --version 2>&1)"
 
-# obcost records the run's costs as ob's post-run hook (thoa/hooks/post-run);
-# uploads lose the executable bit.
+# obcost records the run's costs as ob's post-run hook (thoa/hooks/post-run).
+python -c 'import sys, urllib.request as u; u.urlretrieve(sys.argv[1], "thoa/bin/obcost")' "$OBCOST_URL"
 chmod +x thoa/hooks/post-run thoa/bin/obcost
 export OB_HOOKS_PATH=$PWD/thoa/hooks
 
@@ -46,6 +42,5 @@ rc=0
 ob run plan.yaml --cores "$(nproc)" --out-dir out "$@" || rc=$?
 # Built envs and module clones are GBs and not results; keep them out of the dataset.
 rm -rf out/.snakemake out/.modules out/.envs
-xargs -r -d '\n' rm -f < "$staged"
 echo "== $(date -Is) done, exit $rc"
 exit $rc
