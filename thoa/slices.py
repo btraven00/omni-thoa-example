@@ -124,14 +124,30 @@ def exists(dataset):
     return subprocess.run([THOA, "ls", "-q", dataset], capture_output=True).returncode == 0
 
 
-def results(job):
-    """{path under the cwd: file id} of a job's outputs, logs excluded. From the
-    job record's absolute output_context: the output dataset's own listed
-    paths drift (out/ was dropped some hours after the job, 2026-11-10)."""
+def outputs(job):
+    """{path under the cwd: file id} of all a job's outputs. From the job
+    record's absolute output_context: the output dataset's own listed paths
+    drift (out/ was dropped some hours after the job) or omit files, logs
+    among them (thoa-go BUGS.txt 12, 14)."""
     rec = json.loads(sh(THOA, "job", job))
     cwd = rec["current_working_directory"].rstrip("/") + "/"
-    rel = {p[len(cwd):]: i for p, i in rec["output_context"].items() if p.startswith(cwd)}
-    return {p: i for p, i in rel.items() if not any(fnmatch.fnmatch(p, g) for g in LOG_GLOBS)}
+    return {p[len(cwd):]: i for p, i in rec["output_context"].items() if p.startswith(cwd)}
+
+
+def results(job):
+    """A job's outputs, logs excluded."""
+    return {p: i for p, i in outputs(job).items() if not any(fnmatch.fnmatch(p, g) for g in LOG_GLOBS)}
+
+
+def download(job, output, globs, dest):
+    """Download a job's outputs matching globs into dest, at their paths under
+    the cwd (out/...), by file id. Returns how many matched."""
+    want = {p: i for p, i in outputs(job).items() if any(fnmatch.fnmatch(p, g) for g in globs)}
+    if want:
+        tsv = WORK / f"{Path(dest).name}.tsv"
+        tsv.write_text("".join(f"{p}\t{i}\n" for p, i in sorted(want.items())))
+        sh(THOA, "download", "-q", "-stage", str(tsv), output, str(dest))
+    return len(want)
 
 
 def job_size(st):
@@ -228,7 +244,10 @@ def fail(stage, job, output):
     if not output:
         sys.exit(msg + (f"; no outputs, see `thoa job {job}`" if job else ""))
     dest = WORK / f"{stage}-failed"
-    subprocess.run([THOA, "download", "-q", "-i", "out/job.log", "-i", "out/boot.log", output, str(dest)])
+    try:
+        download(job, output, ["out/job.log", "out/boot.log"], dest)
+    except subprocess.CalledProcessError:
+        pass
     for name in ("boot.log", "job.log"):
         if (log := dest / "out" / name).exists():
             print(f"== {log}\n" + "".join(log.read_text().splitlines(True)[-30:]), file=sys.stderr)
@@ -260,12 +279,11 @@ def record_cost(stage, job, output):
             break
         time.sleep(10)
     dest = WORK / f"{stage}-hooks"
-    sh(THOA, "download", "-q", "-i", "out/.hooks/*", "-i", ".hooks/*", output, str(dest))
+    download(job, output, ["out/.hooks/*"], dest)
     attrs = ["-a", "remote=thoa", "-a", f"job={job}"]
     for k, v in cost.items():
         attrs += ["-a", f"{k}={v}"]
-    hooks = dest / "out" / ".hooks"
-    sh(OBCOST, "import", *attrs, str(hooks if hooks.is_dir() else dest / ".hooks"))
+    sh(OBCOST, "import", *attrs, str(dest / "out" / ".hooks"))
     print(f"{stage}: obcost import, cost {cost or 'not yet billed'}")
     return cost
 
