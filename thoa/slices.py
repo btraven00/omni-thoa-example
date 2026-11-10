@@ -17,6 +17,7 @@ and a fan-in of two slices needs thoa to stage two datasets.
 """
 
 import argparse
+import fnmatch
 import json
 import os
 import re
@@ -37,7 +38,7 @@ WORK = Path(".work/slices")
 # Envs thoa's builder can't build (bioconda-first strict priority, URL
 # channels dropped; thoa-go BUGS.txt 6, 9): build them in the job instead.
 IN_JOB = {"scrapper"}
-LOG_GLOBS = ["out/.logs/*", "out/job.log", "out/Snakefile", "out/.metadata/*", "*/performance.txt", "out/.hooks/*"]
+LOG_GLOBS = ["out/.logs/*", "out/job.log", "out/boot.log", "out/Snakefile", "out/.metadata/*", "*/performance.txt", "out/.hooks/*"]
 # ob, from a pushed commit of OB_SRC (main + #407 + hooks): the VM installs
 # the GitHub archive of that commit, and .work/ob the same tree, for slice keys.
 OB_SRC = Path(os.environ.get("OB_SRC", Path.home() / "lab/omnibenchmark-integ"))
@@ -117,24 +118,43 @@ def exists(dataset):
     return subprocess.run([THOA, "ls", "-q", dataset], capture_output=True).returncode == 0
 
 
-def files(output, *args):
-    """{path: file id} of output's files selected by thoa files args (-i/-e)."""
-    out = sh(THOA, "files", "-q", *args, output).strip()
-    return dict(l.split("\t") for l in out.split("\n") if l)
+def results(job):
+    """{path under the cwd: file id} of a job's outputs, logs excluded. From the
+    job record's absolute output_context: the output dataset's own listed
+    paths drift (out/ was dropped some hours after the job, 2026-11-10)."""
+    rec = json.loads(sh(THOA, "job", job))
+    cwd = rec["current_working_directory"].rstrip("/") + "/"
+    rel = {p[len(cwd):]: i for p, i in rec["output_context"].items() if p.startswith(cwd)}
+    return {p: i for p, i in rel.items() if not any(fnmatch.fnmatch(p, g) for g in LOG_GLOBS)}
 
 
 def run_slice(stage, env, upstream, src):
+    """upstream: (output dataset, job) of the previous slice, or None."""
     in_job = env in IN_JOB
     WORK.mkdir(parents=True, exist_ok=True)
     vars = {**src, **({"SLICE_BACKEND": "conda"} if in_job else {})}
-    cmd = (f"{FETCH} {shlex.quote(src['PLAN_URL'])} && "
+    # thoa can start a job before its inputs are all staged (2 of 8, job
+    # bd0ee8aa): wait for every upstream file, up to 30 min, then fail loudly.
+    staged = results(upstream[1]) if upstream else {}
+    want = len(staged)
+    have = "$(find out -type f ! -name boot.log | wc -l)"
+    # Staged files land in any order (the big ones last), so snakemake's mtime
+    # trigger would rerun upstream rules: give them all one timestamp.
+    wait = (f"for i in $(seq 360); do [ {have} -ge {want} ] && break; sleep 5; done; "
+            f"echo staged {have}/{want}; [ {have} -ge {want} ] && "
+            f"find out -type f ! -name boot.log -exec touch -d @1000000000 {{}} +")
+    # the bootstrap logs into out/, so a job that fails before slice.sh leaves a trace
+    cmd = (f"mkdir -p out && {{ set -x; {wait} && {FETCH} {shlex.quote(src['PLAN_URL'])}; }} > out/boot.log 2>&1 && "
            + " ".join(f"{k}={shlex.quote(v)}" for k, v in vars.items() if k != "PLAN_URL")
            + f" bash thoa/slice.sh --until {stage} -- --rerun-triggers mtime")
     args = [THOA, "run", "-env", f"envs/thoa/{'ob' if in_job else env}.yml",
             "-cmd", cmd, "-out", "out", "-c", "4", "-ram", "16", "-disk", "40"]
     if upstream:
-        args += ["-d", upstream, *[a for g in LOG_GLOBS for a in ("-e", g)]]
-    print(f"{stage}: running a thoa job ({'in-job env' if in_job else 'env ' + env}, upstream {upstream or 'none'})")
+        tsv = WORK / f"{stage}-stage.tsv"
+        tsv.write_text("".join(f"{p}\t{i}\n" for p, i in sorted(staged.items())))
+        args += ["-d", upstream[0], "-stage", str(tsv)]
+    print(f"{stage}: running a thoa job ({'in-job env' if in_job else 'env ' + env}, "
+          f"{want} files staged from {upstream[0] if upstream else 'nothing'})")
     for attempt in range(3):
         with open(WORK / f"{stage}.err", "w") as err:
             p = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=err)
@@ -155,7 +175,7 @@ def run_slice(stage, env, upstream, src):
         run.update(record_cost(stage, m[1], output))
     except subprocess.CalledProcessError as e:
         print(f"{stage}: obcost import failed: {(e.stderr or '').strip()}")
-    return output, files(output, *[a for g in LOG_GLOBS for a in ("-e", g)]), run
+    return output, results(m[1]), run
 
 
 def fail(stage, job, output):
@@ -163,11 +183,11 @@ def fail(stage, job, output):
     if not output:
         sys.exit(msg + (f"; no outputs, see `thoa job {job}`" if job else ""))
     dest = WORK / f"{stage}-failed"
-    subprocess.run([THOA, "download", "-q", "-i", "out/job.log", output, str(dest)])
-    log = dest / "out/job.log"
-    if log.exists():
-        print("".join(log.read_text().splitlines(True)[-30:]), file=sys.stderr)
-        msg += f"; VM log {log}"
+    subprocess.run([THOA, "download", "-q", "-i", "out/job.log", "-i", "out/boot.log", output, str(dest)])
+    for name in ("boot.log", "job.log"):
+        if (log := dest / "out" / name).exists():
+            print(f"== {log}\n" + "".join(log.read_text().splitlines(True)[-30:]), file=sys.stderr)
+            msg += f"; VM log {log}"
     sys.exit(msg)
 
 
@@ -177,22 +197,30 @@ def fetch(lock, key, dest):
     got = WORK / "fetch" / output
     if not got.exists():  # downloaded once: each download spends the dataset's quota
         part = got.with_suffix(".part")
-        sh(THOA, "download", "-q", *[a for g in LOG_GLOBS for a in ("-e", g)], output, str(part))
+        sh(THOA, "download", "-q", *[a for g in LOG_GLOBS + [g[4:] for g in LOG_GLOBS] for a in ("-e", g)],
+           output, str(part))
         part.rename(got)
-    shutil.copytree(got / "out", dest, dirs_exist_ok=True)
+    # listed paths drift between out/... and ... (see results)
+    shutil.copytree(got / "out" if (got / "out").is_dir() else got, dest, dirs_exist_ok=True)
     print(f"fetched {key} -> {dest}")
 
 
 def record_cost(stage, job, output):
     """Import the VM's obcost rows (out/.hooks/) with thoa's cost for the job."""
-    rec = json.loads(sh(THOA, "job", job))
-    cost = {k: rec[k] for k in ("billed_cost_usd", "credits_debited") if rec.get(k) is not None}
+    # billing trails "completed", and obcost records a run once: wait up to 3 min
+    for _ in range(18):
+        rec = json.loads(sh(THOA, "job", job))
+        cost = {k: rec[k] for k in ("billed_cost_usd", "credits_debited") if rec.get(k) is not None}
+        if len(cost) == 2:
+            break
+        time.sleep(10)
     dest = WORK / f"{stage}-hooks"
-    sh(THOA, "download", "-q", "-i", "out/.hooks/*", output, str(dest))
+    sh(THOA, "download", "-q", "-i", "out/.hooks/*", "-i", ".hooks/*", output, str(dest))
     attrs = ["-a", "remote=thoa", "-a", f"job={job}"]
     for k, v in cost.items():
         attrs += ["-a", f"{k}={v}"]
-    sh(OBCOST, "import", *attrs, str(dest / "out" / ".hooks"))
+    hooks = dest / "out" / ".hooks"
+    sh(OBCOST, "import", *attrs, str(hooks if hooks.is_dir() else dest / ".hooks"))
     print(f"{stage}: obcost import, cost {cost or 'not yet billed'}")
     return cost
 
@@ -228,7 +256,7 @@ def main(dry=False, fetch_to=None):
                 src = {"PLAN_URL": f"https://github.com/{github('.')}/archive/{pushed('.')}.tar.gz",
                        "OB_URL": f"https://github.com/{OB_REPO}/archive/{ob}.tar.gz",
                        "OB_VERSION": version, "OBCOST_URL": OBCOST_URL}
-            upstream = lock[done[-1]]["results"] if done else None
+            upstream = (lock[done[-1]]["results"], lock[done[-1]]["runs"][-1]["job"]) if done else None
             results, result_files, run = run_slice(stage, envs.pop(), upstream, src)
             entry = lock.setdefault(key, {"upstream": list(done)})
             entry.update(results=results, files=result_files)

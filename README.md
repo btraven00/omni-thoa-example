@@ -39,8 +39,12 @@ For each stage in plan order, `thoa/slices.py`:
    and the driver adds thoa's billed cost to that record in your local obcost
    store.
 
-When a job fails, the driver prints the tail of the job's log from the VM
-(`out/job.log`).
+Before ob runs, the job waits until every upstream file is staged (thoa can
+start a job early) and gives them one timestamp, so snakemake doesn't rerun
+upstream rules. Staging paths come from the upstream job's record, not from
+its output dataset, whose listed paths drift (thoa-go BUGS.txt 12). When a
+job fails, the driver prints the tail of the VM's `out/boot.log` and
+`out/job.log`.
 
 ### Requirements
 

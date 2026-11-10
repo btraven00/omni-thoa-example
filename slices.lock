@@ -1,9 +1,9 @@
 # slices.lock: slice key -> the thoa datasets that materialize it.
 # Written by thoa/slices.py. Key: {plan.id}@{plan.version}/until-{STAGE}/{hash}
-# (thoa/slicekey.sh). results: dataset over the slice's own output files (no
-#   logs); thoa keeps no paths for it, so `files` (path -> file id) is the
-#   record downstream jobs stage from. Ids are content addresses (md5 dedup).
-# upstream: slices a job for this one stages. runs: one per job that made it.
+# (thoa/slicekey.sh). results: the job's output dataset, which holds this
+#   slice and every one before it; files: its result files (path -> file id,
+#   logs excluded). The next slice's job stages that dataset.
+# upstream: the slices before this one. runs: one per job that made it.
 omni_thoa_example@0.1.0/until-DATA/8c11e01c9c3fd583:
   upstream: []
   results: 799c6005-580b-419d-ae3d-1869a372c188
@@ -103,4 +103,73 @@ omni_thoa_example@0.1.0/until-REPORT/7ce75ebfaee4f68c+dirty:
     backend: host
     at: '2026-11-07T16:31:56Z'
     billed_cost_usd: 0.027611855744
+    credits_debited: 3
+omni_thoa_example@0.1.0/until-DATA/72382c9d822739b4:
+  upstream: []
+  results: 56933f32-e4e8-44f5-a2b3-a1d20a32f771
+  files:
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+  runs:
+  - job: 27d7c873-df47-4648-a3b1-de1984e4b869
+    output: 56933f32-e4e8-44f5-a2b3-a1d20a32f771
+    env: e77cc497-048a-486a-a59b-d3f753cd4631
+    plan_commit: 343260576f58832a2563eafd7b5e87a91621b488
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: host
+    at: '2026-11-10T00:22:03Z'
+    billed_cost_usd: 0.022599151789000002
+    credits_debited: 3
+omni_thoa_example@0.1.0/until-FILT/ed78807db534e6f8:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/72382c9d822739b4
+  results: 2cf4fd2b-f753-4de1-b68b-b4e49c964425
+  files:
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+  runs:
+  - job: 31c90963-b86e-4b4d-afe5-390f72a6291c
+    output: 2cf4fd2b-f753-4de1-b68b-b4e49c964425
+    env: c78d6e29-3533-4b99-b550-8eb764988429
+    plan_commit: 343260576f58832a2563eafd7b5e87a91621b488
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: conda (module env built in-job)
+    at: '2026-11-10T00:28:09Z'
+    billed_cost_usd: 0.043804705086000005
+    credits_debited: 5
+omni_thoa_example@0.1.0/until-REPORT/a81bc82910d6b99c:
+  upstream:
+  - omni_thoa_example@0.1.0/until-DATA/72382c9d822739b4
+  - omni_thoa_example@0.1.0/until-FILT/ed78807db534e6f8
+  results: 96210a80-d798-492c-bb72-0d24300f8f99
+  files:
+    out/DATA.be1.44d965bf/be1.h5ad: 44269e01-50fe-441c-91ed-21602bd0e000
+    out/DATA.be1.44d965bf/parameters.json: bb249bb7-c3e8-4f0f-a6da-7b9b80dee4b6
+    out/DATA.be1.44d965bf/be1_properties.yaml: 9e968a3f-accb-4313-bd54-f475f3a569f1
+    out/DATA.be1.44d965bf/be1.clusters_truth.tsv: cea24b22-5983-4cbe-a51f-d72fc34a831f
+    out/DATA.be1.44d965bf/be1.clusters_truth_num.txt: aee41524-6e63-49d8-bb53-d537fe15190d
+    out/REPORT.report_quarto.be1.default/lineage.json: 3ac066c2-8458-4a3c-9bd6-8a6481ebf18e
+    out/REPORT.report_quarto.be1.default/be1_report.qmd: ca2af7a3-28fb-4fed-b016-811faad60530
+    out/REPORT.report_quarto.be1.default/be1_report.html: 0b36b6bc-c356-4aab-ae9e-daf3aaecc26b
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_cellids.txt.gz: bcccb9c5-0eaa-4962-873a-1cafe1576215
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_size_factors.tsv: 7aeca732-61fd-4c45-afff-21ce6fff3221
+    out/DATA.be1.44d965bf/FILT.fi_scrapper.default/fi_scrapper_featureids.txt.gz: 762fdc0b-79ce-4016-8561-e00bce8247de
+  runs:
+  - job: da3e7409-71d1-443f-80db-5b8fa33c3656
+    output: 96210a80-d798-492c-bb72-0d24300f8f99
+    env: 267f4c25-2393-4b52-8b4a-eab733ffb1c9
+    plan_commit: 343260576f58832a2563eafd7b5e87a91621b488
+    ob: 0.8.0.dev0+integ.6b018556
+    backend: host
+    at: '2026-11-10T09:17:11Z'
+    billed_cost_usd: 0.02075073408
     credits_debited: 3
